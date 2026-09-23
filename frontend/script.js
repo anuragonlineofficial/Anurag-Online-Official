@@ -1,5 +1,5 @@
  
-const API_URL = 'http://localhost:10000';
+const API_URL = 'https://anurag-online-backend.onrender.com';
 
 document.getElementById('payment-form').addEventListener('submit', async (e) => {
   e.preventDefault();
