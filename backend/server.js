@@ -7,7 +7,6 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Cashfree v6 Setup
 const cashfree = new Cashfree(
   process.env.CASHFREE_ENV === 'production'
     ? CFEnvironment.PRODUCTION
@@ -15,6 +14,17 @@ const cashfree = new Cashfree(
   process.env.CASHFREE_APP_ID,
   process.env.CASHFREE_SECRET_KEY
 );
+
+// 🔒 SERVER-SIDE FIXED PRICES (कोई edit नहीं कर सकता)
+const PACKAGE_PRICES = {
+  7: 2100,
+  14: 4200,
+  21: 6300,
+  28: 8400,
+  35: 10500,
+  42: 12600,
+  49: 14700
+};
 
 app.get('/', (req, res) => {
   res.json({
@@ -27,8 +37,27 @@ app.get('/', (req, res) => {
 
 app.post('/api/create-order', async (req, res) => {
   try {
-    const { amount, customer_name, customer_phone, customer_email } = req.body;
-    const orderId = `order_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
+    const { keyId, days, customer_name, customer_phone, customer_email } = req.body;
+
+    // 🔒 Amount server पर तय होगा — client से नहीं लेगा
+    const amount = PACKAGE_PRICES[days];
+
+    if (!amount) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid package selected'
+      });
+    }
+
+    if (!keyId) {
+      return res.status(400).json({
+        success: false,
+        error: 'Key ID is required'
+      });
+    }
+
+    const safeKeyId = keyId.replace(/[^a-zA-Z0-9_-]/g, '');
+    const orderId = `AO_${safeKeyId}_${Date.now()}`.substring(0, 45);
 
     const request = {
       order_amount: amount,
@@ -36,9 +65,9 @@ app.post('/api/create-order', async (req, res) => {
       order_id: orderId,
       customer_details: {
         customer_id: `cust_${Date.now()}`,
-        customer_name: customer_name,
-        customer_phone: customer_phone,
-        customer_email: customer_email
+        customer_name: customer_name || 'Anurag Online Customer',
+        customer_phone: customer_phone || '9999999999',
+        customer_email: customer_email || 'customer@anuragonlineofficial.com'
       }
     };
 
@@ -47,7 +76,10 @@ app.post('/api/create-order', async (req, res) => {
     res.json({
       success: true,
       order_id: orderId,
-      payment_session_id: response.data.payment_session_id
+      payment_session_id: response.data.payment_session_id,
+      keyId: keyId,
+      days: days,
+      amount: amount
     });
   } catch (error) {
     console.error('Order creation error:', error.message);
@@ -64,11 +96,7 @@ app.post('/api/cashfree-webhook', async (req, res) => {
     const timestamp = req.headers['x-webhook-timestamp'];
     const rawBody = JSON.stringify(req.body);
 
-    cashfree.PGVerifyWebhookSignature(
-      signature,
-      rawBody,
-      timestamp
-    );
+    cashfree.PGVerifyWebhookSignature(signature, rawBody, timestamp);
 
     console.log('Webhook received:', req.body.type);
     res.status(200).send('OK');
