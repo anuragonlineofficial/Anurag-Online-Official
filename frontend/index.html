@@ -1,0 +1,33 @@
+ 
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Anurag Online Official - Payment</title>
+  <script src="https://sdk.cashfree.com/js/v3/cashfree.js"></script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Anurag Online Official</h1>
+    <p class="contact">
+      📱 9451228744<br>
+      ✉️ ahardoi30@gmail.com<br>
+      📍 1/7 Kanshiram Colony, Lucknow Road, Hardoi, UP - 241001
+    </p>
+
+    <form id="payment-form">
+      <input type="text" id="name" placeholder="आपका नाम" required>
+      <input type="tel" id="phone" placeholder="मोबाइल नंबर" required pattern="[0-9]{10}">
+      <input type="email" id="email" placeholder="ईमेल" required>
+      <input type="number" id="amount" placeholder="राशि (₹)" required min="1">
+      <button type="submit" id="pay-btn">अभी भुगतान करें</button>
+    </form>
+
+    <p id="status"></p>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
