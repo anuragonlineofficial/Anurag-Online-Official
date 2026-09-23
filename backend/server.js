@@ -39,9 +39,6 @@ app.post('/api/create-order', async (req, res) => {
         customer_name: customer_name,
         customer_phone: customer_phone,
         customer_email: customer_email
-      },
-      order_meta: {
-        return_url: `${process.env.FRONTEND_URL}/payment-status?order_id=${orderId}`
       }
     };
 
@@ -67,7 +64,6 @@ app.post('/api/cashfree-webhook', async (req, res) => {
     const timestamp = req.headers['x-webhook-timestamp'];
     const rawBody = JSON.stringify(req.body);
 
-    // v6: instance method (small 'c'), not static
     cashfree.PGVerifyWebhookSignature(
       signature,
       rawBody,
