@@ -7,7 +7,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Cashfree Setup for v6
+// Cashfree v6 Setup
 const cashfree = new Cashfree(
   process.env.CASHFREE_ENV === 'production'
     ? CFEnvironment.PRODUCTION
@@ -65,10 +65,12 @@ app.post('/api/cashfree-webhook', async (req, res) => {
   try {
     const signature = req.headers['x-webhook-signature'];
     const timestamp = req.headers['x-webhook-timestamp'];
+    const rawBody = JSON.stringify(req.body);
 
-    Cashfree.PGVerifyWebhookSignature(
+    // v6: instance method (small 'c'), not static
+    cashfree.PGVerifyWebhookSignature(
       signature,
-      JSON.stringify(req.body),
+      rawBody,
       timestamp
     );
 
