@@ -112,7 +112,7 @@ function completeLogin(){
     if(userEl)userEl.textContent=currentUser.username;
     if(createdEl)createdEl.textContent=currentUser.created||"N/A";
 
-    const adminNavs=['nav-bans','nav-trials','nav-payments','nav-operators','nav-system'];
+    const adminNavs=['nav-bans','nav-trials','nav-operators','nav-system'];
     if(currentUser.role==='admin'){
         adminNavs.forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='flex';});
     }else{
@@ -122,7 +122,7 @@ function completeLogin(){
     loadAppStatus();
     renderKeys();
     if(currentUser.role==='admin'){
-        renderBans();renderTrials();renderOperators();renderPaymentRequests();
+        renderBans();renderTrials();renderOperators();
     }
 
     showIsland("Welcome "+currentUser.username+"!","success","fa-unlock-alt");
@@ -144,7 +144,7 @@ async function fetchDatabase(){
             DB=ensureDBShape(data);
             loadAppStatus();renderKeys();
             if(currentUser&&currentUser.role==='admin'){
-                renderBans();renderTrials();renderOperators();renderPaymentRequests();
+                renderBans();renderTrials();renderOperators();
             }
             showIsland("Database Synced","success","fa-sync-alt");
         }
@@ -163,7 +163,7 @@ async function silentBackgroundSync(){
                 DB.Operators=data.Operators||{};DB.PaymentRequests=data.PaymentRequests||{};
                 renderKeys();
                 if(currentUser.role==='admin'){
-                    renderBans();renderTrials();renderOperators();renderPaymentRequests();
+                    renderBans();renderTrials();renderOperators();
                 }
             }
         }
@@ -184,7 +184,7 @@ async function syncNode(path,obj){
 async function sendTelegramNotification(keyId,days,limit,amount,operator){
     if(!TELEGRAM_BOT_TOKEN||TELEGRAM_BOT_TOKEN==="YOUR_BOT_TOKEN_HERE")return;
     try{
-        const message=`🔔 *NEW PAYMENT RECEIVED*\n\n🔑 *Key:* \`${keyId}\`\n📅 *Days:* ${days}\n📱 *Devices:* ${limit}\n💰 *Amount:* ₹${amount}\n👤 *Operator:* ${operator}\n💳 *Gateway:* Cashfree\n\n👉 Admin Panel me approve karein!`;
+        const message=`🔔 *NEW PAYMENT RECEIVED*\n\n🔑 *Key:* \`${keyId}\`\n📅 *Days:* ${days}\n📱 *Devices:* ${limit}\n💰 *Amount:* ₹${amount}\n👤 *Operator:* ${operator}\n💳 *Gateway:* Cashfree\n⚠️ *NON-REFUNDABLE*\n\n👉 Admin Panel me approve karein!`;
         await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`,{
             method:'POST',headers:{'Content-Type':'application/json'},
             body:JSON.stringify({chat_id:TELEGRAM_CHAT_ID,text:message,parse_mode:'Markdown'})
@@ -196,7 +196,7 @@ async function sendTelegramNotification(keyId,days,limit,amount,operator){
 // NAVIGATION
 // ============================================
 function nav(viewId,el,title,subtitle){
-    if(currentUser&&currentUser.role==='operator'&&['bans','trials','payments','operators','system'].includes(viewId)){
+    if(currentUser&&currentUser.role==='operator'&&['bans','trials','operators','system'].includes(viewId)){
         showIsland("Access Denied!","error");return;
     }
     document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
@@ -206,10 +206,10 @@ function nav(viewId,el,title,subtitle){
     if(el)el.classList.add('active');
     document.getElementById('page-subtitle-text').innerText=subtitle;
     if(viewId==='operators')renderOperators();
-    if(viewId==='payments')renderPaymentRequests();
     if(viewId==='bans')renderBans();
     if(viewId==='trials')renderTrials();
     if(viewId==='system')loadAppStatus();
+    if(viewId==='keys')renderKeys();
 }
 
 function logout(){
@@ -264,6 +264,7 @@ function setDays(days,btnEl){
 
 function autoCalculateExpiry(){
     const days=selectedDays;
+    const limit=parseInt(document.getElementById('mod-key-limit').value)||1;
     if(days>0){
         const expiry=new Date();
         expiry.setDate(expiry.getDate()+days);
@@ -272,9 +273,29 @@ function autoCalculateExpiry(){
         const price=PACKAGE_PRICES[days]||0;
         document.getElementById('mod-key-amount').value=`₹${price} (LOCKED)`;
         document.getElementById('expiry-preview-text').textContent=`Expiry: ${dd}/${mm}/${yyyy} • Price: ₹${price}`;
+
+        // Update operator fee summary
+        const opSum=document.getElementById('op-fee-summary');
+        if(opSum){
+            opSum.style.display='block';
+            document.getElementById('op-fee-package').textContent=`${days} Days`;
+            document.getElementById('op-fee-devices').textContent=`${limit} Device${limit>1?'s':''}`;
+            document.getElementById('op-fee-amount').textContent=`₹${price.toLocaleString('en-IN')}`;
+        }
+
+        // Update admin fee summary
+        const adSum=document.getElementById('admin-fee-summary');
+        if(adSum){
+            adSum.style.display='block';
+            document.getElementById('admin-fee-amount').textContent=`₹${price.toLocaleString('en-IN')}`;
+        }
     }else{
         document.getElementById('mod-key-amount').value='';
         document.getElementById('expiry-preview-text').textContent='Select a package';
+        const opSum=document.getElementById('op-fee-summary');
+        if(opSum)opSum.style.display='none';
+        const adSum=document.getElementById('admin-fee-summary');
+        if(adSum)adSum.style.display='none';
     }
 }
 
@@ -380,6 +401,8 @@ function openKeyModal(){
     document.getElementById('expiry-preview-text').textContent='Select a package';
     document.getElementById('mod-key-name').value="";
     document.getElementById('mod-key-payment').value="";
+    document.getElementById('op-fee-summary').style.display='none';
+    document.getElementById('admin-fee-summary').style.display='none';
 
     if(currentUser.role==='admin'){
         document.getElementById('admin-key-actions').style.display='block';
@@ -392,6 +415,17 @@ function openKeyModal(){
     }
     toggleAdvancedMode('hide');
     document.getElementById('key-modal').classList.add('active');
+
+    // Device limit change पर fee summary update
+    setTimeout(()=>{
+        const limitInput=document.getElementById('mod-key-limit');
+        if(limitInput && !limitInput.dataset.listenerAdded){
+            limitInput.dataset.listenerAdded='true';
+            limitInput.addEventListener('input',()=>{
+                if(selectedDays>0)autoCalculateExpiry();
+            });
+        }
+    },100);
 }
 
 function openEditKeyModal(keyId){
@@ -407,10 +441,11 @@ function openEditKeyModal(keyId){
     document.getElementById('mod-key-limit').value=data.DeviceLimit||1;
     if(data.ExpiryDate)document.getElementById('mod-key-date').value=data.ExpiryDate;
     document.getElementById('mod-key-amount').value=data.Amount?`₹${data.Amount} (PAID)`:'';
-
     selectedDays=0;
     document.querySelectorAll('.day-btn').forEach(b=>b.classList.remove('selected'));
     document.getElementById('expiry-preview-text').textContent='Select a package to update expiry';
+    document.getElementById('op-fee-summary').style.display='none';
+    document.getElementById('admin-fee-summary').style.display='none';
 
     if(currentUser.role==='admin'){
         document.getElementById('admin-key-actions').style.display='block';
@@ -478,7 +513,7 @@ async function saveKeyDirectly(){
 }
 
 // ============================================
-// CASHFREE PAYMENT — FIXED AMOUNT
+// CASHFREE PAYMENT
 // ============================================
 async function openPaymentModal(){
     const keyId=document.getElementById('mod-key-id').value.trim();
@@ -497,7 +532,6 @@ async function openPaymentModal(){
     showIsland("Order ban raha hai...","warning","fa-spinner");
 
     try{
-        // Amount भेजेंगे नहीं — server खुद तय करेगा days से
         const res=await fetch(`${BACKEND_URL}/api/create-order`,{
             method:'POST',
             headers:{'Content-Type':'application/json'},
@@ -538,6 +572,7 @@ async function openPaymentModal(){
                 sendTelegramNotification(keyId, days, limit, data.amount, currentUser.username);
                 document.getElementById('key-modal').classList.remove('active');
                 document.getElementById('payment-instruction-modal').classList.add('active');
+                renderKeys();
             }
         });
 
@@ -556,6 +591,7 @@ async function savePaymentRequest(requestId,keyId,days,limit,amount){
             status:'pending',
             requestedAt:Date.now(),
             gateway:'Cashfree',
+            nonRefundable:true,
             paymentSessionRef:requestId
         };
         if(!DB.PaymentRequests)DB.PaymentRequests={};
@@ -566,77 +602,13 @@ async function savePaymentRequest(requestId,keyId,days,limit,amount){
 }
 
 // ============================================
-// PAYMENT REQUESTS
+// APPROVE / REJECT PAYMENT
 // ============================================
-function renderPaymentRequests(){
-    if(!currentUser||currentUser.role!=='admin')return;
-    const list=document.getElementById('payments-list');
-    if(!list)return;
-
-    const search=(document.getElementById('search-payments')?.value||'').toLowerCase();
-    const requests=DB.PaymentRequests||{};
-    const all=Object.entries(requests).sort((a,b)=>(b[1].requestedAt||0)-(a[1].requestedAt||0));
-    const filtered=all.filter(([id,r])=>{
-        if(search==="")return true;
-        return (r.keyId||'').toLowerCase().includes(search)||(r.requestedBy||'').toLowerCase().includes(search);
-    });
-
-    if(filtered.length===0){list.innerHTML=`<div class="empty-state">No Payment Requests</div>`;return;}
-
-    list.innerHTML='';
-    filtered.forEach(([id,req])=>{
-        const isPending=req.status==='pending';
-        const isApproved=req.status==='approved';
-        const isRejected=req.status==='rejected';
-
-        let sc='var(--warning)',st='PENDING',si='clock',rgb='245,158,11';
-        if(isApproved){sc='var(--success)';st='APPROVED';si='check-circle';rgb='16,185,129';}
-        if(isRejected){sc='var(--danger)';st='REJECTED';si='times-circle';rgb='239,68,68';}
-
-        const date=new Date(req.requestedAt).toLocaleString();
-
-        list.innerHTML+=`
-        <div class="list-card payment" style="border-left-color:${sc}">
-            <div class="card-header-main" style="cursor:default">
-                <div class="card-header-left" style="flex:1">
-                    <div class="card-title interactive-text" style="color:${sc};font-size:1rem" onclick="copyToClipboard('${req.keyId}','Key ID',event)">
-                        <i class="fas fa-rupee-sign"></i> ₹${req.amount}
-                        <i class="fas fa-copy" style="font-size:0.7rem;opacity:0.8"></i>
-                    </div>
-                    <div class="card-subtitle" style="font-size:0.72rem">
-                        <span><i class="fas fa-key"></i> ${req.keyId}</span>
-                        <span><i class="fas fa-calendar"></i> ${req.days}d</span>
-                        <span><i class="fas fa-desktop"></i> ${req.deviceLimit} device</span>
-                    </div>
-                    <div class="card-subtitle" style="font-size:0.65rem;margin-top:4px">
-                        <span><i class="fas fa-user"></i> ${req.requestedBy}</span>
-                        <span><i class="fas fa-clock"></i> ${date}</span>
-                        <span><i class="fas fa-credit-card"></i> Cashfree</span>
-                    </div>
-                    <div style="margin-top:6px">
-                        <span class="badge" style="background:rgba(${rgb},0.15);color:${sc};border-color:rgba(${rgb},0.3);font-size:0.55rem">
-                            <i class="fas fa-${si}"></i> ${st}
-                        </span>
-                    </div>
-                </div>
-                <div class="card-header-right" style="flex-direction:column;gap:6px;align-items:flex-end">
-                    ${isPending?`
-                        <button class="btn-xs approve" style="padding:8px 14px;font-size:0.7rem;width:auto" onclick="approvePaymentRequest('${id}')"><i class="fas fa-check"></i> APPROVE</button>
-                        <button class="btn-xs del" style="padding:8px 14px;font-size:0.7rem;width:auto" onclick="rejectPaymentRequest('${id}')"><i class="fas fa-times"></i> REJECT</button>
-                    `:`
-                        <span style="font-size:0.7rem;color:${sc};font-weight:800"><i class="fas fa-${si}"></i> ${st}</span>
-                    `}
-                </div>
-            </div>
-        </div>`;
-    });
-}
-
 async function approvePaymentRequest(requestId){
     if(!currentUser||currentUser.role!=='admin')return;
     const request=DB.PaymentRequests[requestId];
     if(!request)return showIsland("Request not found","error");
-    if(!confirm(`✅ Approve Payment?\n\nKey: ${request.keyId}\nAmount: ₹${request.amount}\nDays: ${request.days}\nDevices: ${request.deviceLimit}`))return;
+    if(!confirm(`✅ Approve Payment?\n\nKey: ${request.keyId}\nAmount: ₹${request.amount}\nDays: ${request.days}\nDevices: ${request.deviceLimit}\n\n⚠️ NON-REFUNDABLE`))return;
     if(DB.Keys[request.keyId])return showIsland("Key already exists!","error");
 
     const expiry=new Date();
@@ -655,7 +627,7 @@ async function approvePaymentRequest(requestId){
     await syncNode(`PaymentRequests/${requestId}`,request);
 
     showIsland("Payment Approved! Key Generated 🎉","success","fa-check-circle");
-    renderKeys();renderPaymentRequests();
+    renderKeys();
 }
 
 async function rejectPaymentRequest(requestId){
@@ -667,11 +639,11 @@ async function rejectPaymentRequest(requestId){
     request.status='rejected';request.rejectedAt=Date.now();request.rejectedBy=currentUser.username;
     await syncNode(`PaymentRequests/${requestId}`,request);
     showIsland("Request Rejected","error","fa-times-circle");
-    renderPaymentRequests();
+    renderKeys();
 }
 
 // ============================================
-// KEY MANAGEMENT (with Auto-Delete Payment)
+// KEY MANAGEMENT
 // ============================================
 function toggleKeyBan(keyId,state){
     if(!currentUser)return;
@@ -700,12 +672,10 @@ async function deleteKey(keyId){
     delete DB.Keys[keyId];
     await syncNode(`Keys/${keyId}`,null);
 
-    // Delete local remark
     const r=getLocalRemarks();
     if(r[keyId]){delete r[keyId];localStorage.setItem('ao_remarks',JSON.stringify(r));}
 
     renderKeys();
-    if(currentUser.role==='admin')renderPaymentRequests();
     showIsland("Key + Payment Deleted","success","fa-trash");
 }
 
@@ -775,7 +745,7 @@ function toggleCard(id){
 }
 
 // ============================================
-// RENDER KEYS
+// RENDER KEYS + PENDING PAYMENTS (MERGED)
 // ============================================
 function renderKeys(){
     if(!currentUser)return;
@@ -785,6 +755,49 @@ function renderKeys(){
     const search=(document.getElementById('search-keys')?.value||'').toLowerCase();
     list.innerHTML="";
     let count=0;
+
+    // 🔥 PENDING PAYMENTS (सिर्फ admin को)
+    if(currentUser.role==='admin' && DB.PaymentRequests){
+        const pendingPayments = Object.entries(DB.PaymentRequests)
+            .filter(([id,r])=>r.status==='pending')
+            .sort((a,b)=>(b[1].requestedAt||0)-(a[1].requestedAt||0));
+        
+        pendingPayments.forEach(([id,req])=>{
+            if(search!=="" && !(req.keyId||'').toLowerCase().includes(search) && !(req.requestedBy||'').toLowerCase().includes(search)) return;
+            count++;
+            
+            const date=new Date(req.requestedAt).toLocaleString();
+            
+            list.innerHTML+=`
+            <div class="list-card payment">
+                <div class="card-header-main" style="cursor:default">
+                    <div class="card-header-left" style="flex:1">
+                        <div class="card-title" style="color:var(--warning);font-size:1rem">
+                            <i class="fas fa-hourglass-half"></i> ₹${req.amount} PENDING
+                        </div>
+                        <div class="card-subtitle" style="font-size:0.72rem">
+                            <span><i class="fas fa-key"></i> ${req.keyId}</span>
+                            <span><i class="fas fa-calendar"></i> ${req.days}d</span>
+                            <span><i class="fas fa-desktop"></i> ${req.deviceLimit} device</span>
+                        </div>
+                        <div class="card-subtitle" style="font-size:0.65rem;margin-top:4px">
+                            <span><i class="fas fa-user"></i> ${req.requestedBy}</span>
+                            <span><i class="fas fa-clock"></i> ${date}</span>
+                            <span><i class="fas fa-credit-card"></i> Cashfree</span>
+                        </div>
+                        <div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap">
+                            <span class="badge pending" style="font-size:0.55rem"><i class="fas fa-clock"></i> PAYMENT PENDING</span>
+                            <span class="badge non-refundable" style="font-size:0.55rem"><i class="fas fa-ban"></i> NON-REFUNDABLE</span>
+                        </div>
+                    </div>
+                    <div class="card-header-right" style="flex-direction:column;gap:6px;align-items:flex-end">
+                        <button class="btn-xs approve" style="padding:8px 14px;font-size:0.7rem;width:auto" onclick="approvePaymentRequest('${id}')"><i class="fas fa-check"></i> APPROVE</button>
+                        <button class="btn-xs del" style="padding:8px 14px;font-size:0.7rem;width:auto" onclick="rejectPaymentRequest('${id}')"><i class="fas fa-times"></i> REJECT</button>
+                    </div>
+                </div>
+            </div>`;
+        });
+    }
 
     const today=new Date();today.setHours(0,0,0,0);
 
@@ -891,7 +904,7 @@ function renderKeys(){
         if(currentUser.role==='operator'){
             list.innerHTML=`<div class="empty-state">Aapne koi key nahi banayi<br><span style="font-size:0.75rem;color:var(--text-muted)">Payment karke key generate karein</span></div>`;
         }else{
-            list.innerHTML=`<div class="empty-state">No Access Keys Found</div>`;
+            list.innerHTML=`<div class="empty-state">No Access Keys or Payments Found</div>`;
         }
     }
 }

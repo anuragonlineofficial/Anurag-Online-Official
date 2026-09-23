@@ -18,6 +18,8 @@ body{background:var(--bg-base);color:var(--text-main);font-family:var(--font-ui)
 ::-webkit-scrollbar{width:6px;height:6px}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:rgba(6,182,212,0.3);border-radius:6px}
+@keyframes warningPulse{0%,100%{border-color:rgba(239,68,68,0.35);box-shadow:0 0 0 rgba(239,68,68,0) inset}50%{border-color:rgba(239,68,68,0.65);box-shadow:0 0 20px rgba(239,68,68,0.25) inset}}
+@keyframes pulseGlow{0%,100%{transform:scale(1);box-shadow:0 0 0 rgba(16,185,129,0)}50%{transform:scale(1.05);box-shadow:0 0 30px rgba(16,185,129,0.4)}}
 .app-container{max-width:800px;margin:0 auto;padding-bottom:calc(var(--nav-height) + 20px);display:flex;flex-direction:column;min-height:100dvh}
 #dynamic-island{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-30px) scale(0.8);background:linear-gradient(135deg,#1e1e1e,#0a0a0a);color:#fff;border-radius:16px;padding:14px 22px;display:flex;align-items:center;justify-content:center;gap:10px;font-weight:700;font-size:0.9rem;border:1px solid var(--border-soft);opacity:0;pointer-events:none;z-index:10000;transition:all 0.5s cubic-bezier(0.34,1.56,0.64,1);box-shadow:0 10px 40px rgba(0,0,0,0.9),0 0 30px rgba(6,182,212,0.3);min-width:220px;backdrop-filter:blur(20px)}
 #dynamic-island.show{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}
@@ -80,7 +82,7 @@ body{background:var(--bg-base);color:var(--text-main);font-family:var(--font-ui)
 .list-card.banned::before{background:var(--danger)}
 .list-card.expired::before{background:var(--danger)}
 .list-card.operator::before{background:var(--accent)}
-.list-card.payment::before{background:var(--success)}
+.list-card.payment::before{background:var(--warning)}
 .card-header-main{display:flex;justify-content:space-between;align-items:center;cursor:pointer;user-select:none}
 .card-header-left{display:flex;flex-direction:column;gap:6px;flex:1}
 .card-header-right{display:flex;align-items:center;gap:12px}
@@ -95,6 +97,7 @@ body{background:var(--bg-base);color:var(--text-main);font-family:var(--font-ui)
 .badge.owner-admin{background:rgba(168,85,247,0.15);color:var(--accent);border-color:rgba(168,85,247,0.3);font-size:0.55rem;padding:4px 8px}
 .badge.owner-operator{background:rgba(6,182,212,0.15);color:var(--primary);border-color:rgba(6,182,212,0.3);font-size:0.55rem;padding:4px 8px}
 .badge.payment-tag{background:rgba(16,185,129,0.15);color:var(--success);border-color:rgba(16,185,129,0.3);font-size:0.55rem;padding:4px 8px}
+.badge.non-refundable{background:rgba(239,68,68,0.15);color:var(--danger);border-color:rgba(239,68,68,0.3);font-size:0.55rem;padding:4px 8px}
 .chevron-icon{font-size:0.9rem;color:var(--text-dim);transition:transform 0.4s ease}
 .list-card.expanded .chevron-icon{transform:rotate(180deg);color:var(--primary)}
 .card-details{max-height:0;overflow:hidden;opacity:0;display:flex;flex-direction:column;gap:10px;transition:max-height 0.5s ease,opacity 0.3s ease,margin-top 0.3s ease,padding-top 0.3s ease}
@@ -175,7 +178,7 @@ body{background:var(--bg-base);color:var(--text-main);font-family:var(--font-ui)
 .policy-contact-box{background:rgba(6,182,212,0.05);border:1px solid rgba(6,182,212,0.2);border-radius:14px;padding:16px;margin-top:20px;font-size:0.82rem}
 .policy-contact-box b{color:var(--primary)}
 .locked-price{position:relative}
-.locked-price::after{content:'\f023';font-family:'Font Awesome 6 Free';font-weight:900;position:absolute;right:12px;top:50%;transform:translateY(-50%);color:var(--success);font-size:0.8rem}
+.locked-price::after{content:'\f023';font-family:'Font Awesome 6 Free';font-weight:900;position:absolute;right:14px;top:50%;transform:translateY(-50%);color:var(--success);font-size:0.85rem;pointer-events:none}
 </style>
 </head>
 <body>
@@ -241,7 +244,7 @@ body{background:var(--bg-base);color:var(--text-main);font-family:var(--font-ui)
 
     <div id="view-keys" class="view active">
         <div class="search-bar-container">
-            <input type="text" class="search-bar" id="search-keys" placeholder="Search Keys or Devices..." oninput="renderKeys()">
+            <input type="text" class="search-bar" id="search-keys" placeholder="Search Keys, Payments or Devices..." oninput="renderKeys()">
             <div class="filters-container" id="key-filters">
                 <button class="filter-pill active" data-filter="all" onclick="setKeyFilter('all')">All</button>
                 <button class="filter-pill" data-filter="active" onclick="setKeyFilter('active')">Active</button>
@@ -268,13 +271,6 @@ body{background:var(--bg-base);color:var(--text-main);font-family:var(--font-ui)
             <input type="text" class="search-bar" id="search-trials" placeholder="Search Trial HWID..." oninput="renderTrials()">
         </div>
         <div id="trials-list"></div>
-    </div>
-
-    <div id="view-payments" class="view">
-        <div class="search-bar-container">
-            <input type="text" class="search-bar" id="search-payments" placeholder="Search Payment Requests..." oninput="renderPaymentRequests()">
-        </div>
-        <div id="payments-list" style="padding:0 20px;display:flex;flex-direction:column;gap:14px"></div>
     </div>
 
     <div id="view-operators" class="view">
@@ -380,7 +376,18 @@ body{background:var(--bg-base);color:var(--text-main);font-family:var(--font-ui)
             <div class="expiry-preview"><i class="fas fa-calendar-check"></i> <span id="expiry-preview-text">Select a package</span></div>
         </div>
 
-        <div class="input-group locked-price">
+        <!-- NON-REFUNDABLE WARNING -->
+        <div style="background:rgba(239,68,68,0.08);border:2px solid rgba(239,68,68,0.35);border-radius:14px;padding:14px 16px;margin-top:14px;display:flex;align-items:flex-start;gap:12px;animation:warningPulse 2s ease-in-out infinite">
+            <i class="fas fa-exclamation-triangle" style="color:var(--danger);font-size:1.3rem;margin-top:2px;flex-shrink:0"></i>
+            <div style="text-align:left">
+                <div style="color:var(--danger);font-weight:900;font-size:0.85rem;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">⚠️ Non-Refundable Fees</div>
+                <div style="color:var(--text-dim);font-size:0.75rem;font-weight:600;line-height:1.5">
+                    Jo bhi fees hai wo <b style="color:var(--danger)">Non-Refundable</b> hai. Payment ke baad refund nahi milega. Kripya soch samajh kar payment karein.
+                </div>
+            </div>
+        </div>
+
+        <div class="input-group locked-price" style="margin-top:14px">
             <label>Amount (Locked — Server Verified)</label>
             <input type="text" id="mod-key-amount" readonly placeholder="Auto-calculated">
         </div>
@@ -398,18 +405,59 @@ body{background:var(--bg-base);color:var(--text-main);font-family:var(--font-ui)
             <div class="input-group"><label>Payment (Local)</label><input type="text" id="mod-key-payment" placeholder="₹500"></div>
         </div>
 
+        <!-- ADMIN ACTIONS -->
         <div id="admin-key-actions" style="display:none">
             <button class="btn" style="background:linear-gradient(135deg,var(--accent),#7e22ce);margin-bottom:12px;box-shadow:0 8px 25px var(--accent-shine)" onclick="saveKeyDirectly()">
                 <i class="fas fa-crown"></i> Generate Key (Admin Free)
             </button>
+            
+            <!-- ADMIN FEE SUMMARY -->
+            <div id="admin-fee-summary" style="background:linear-gradient(135deg,rgba(16,185,129,0.12),rgba(6,182,212,0.12));border:2px solid rgba(16,185,129,0.4);border-radius:14px;padding:16px;margin-bottom:14px;display:none">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+                    <span style="color:var(--text-dim);font-size:0.75rem;font-weight:800;text-transform:uppercase;letter-spacing:1px"><i class="fas fa-receipt"></i> Payment Summary</span>
+                    <span class="badge active" style="font-size:0.6rem"><i class="fas fa-lock"></i> FIXED</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;padding:12px 0 4px 0;align-items:center">
+                    <span style="color:var(--text-dim);font-size:0.8rem;font-weight:800;text-transform:uppercase">Total Payable:</span>
+                    <span id="admin-fee-amount" style="color:var(--success);font-weight:900;font-size:1.3rem;text-shadow:0 0 15px var(--success-shine)">₹0</span>
+                </div>
+                <div style="margin-top:8px;padding:8px;background:rgba(239,68,68,0.1);border-radius:8px;text-align:center;font-size:0.7rem;color:var(--danger);font-weight:800">
+                    <i class="fas fa-ban"></i> NON-REFUNDABLE
+                </div>
+            </div>
+
             <button class="payment-link-btn" id="payment-btn-admin" onclick="openPaymentModal()" disabled>
                 <i class="fas fa-credit-card"></i> Pay with Cashfree
             </button>
         </div>
 
+        <!-- OPERATOR ACTIONS -->
         <div id="operator-key-actions">
+            <!-- OPERATOR FEE SUMMARY -->
+            <div id="op-fee-summary" style="background:linear-gradient(135deg,rgba(16,185,129,0.12),rgba(6,182,212,0.12));border:2px solid rgba(16,185,129,0.4);border-radius:14px;padding:16px;margin-bottom:14px;display:none">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+                    <span style="color:var(--text-dim);font-size:0.75rem;font-weight:800;text-transform:uppercase;letter-spacing:1px"><i class="fas fa-receipt"></i> Payment Summary</span>
+                    <span class="badge active" style="font-size:0.6rem"><i class="fas fa-lock"></i> FIXED</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px dashed rgba(255,255,255,0.1)">
+                    <span style="color:var(--text-dim);font-size:0.8rem;font-weight:700">Package:</span>
+                    <span id="op-fee-package" style="color:#fff;font-weight:800;font-size:0.85rem">-</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px dashed rgba(255,255,255,0.1)">
+                    <span style="color:var(--text-dim);font-size:0.8rem;font-weight:700">Devices:</span>
+                    <span id="op-fee-devices" style="color:#fff;font-weight:800;font-size:0.85rem">-</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;padding:12px 0 4px 0;align-items:center">
+                    <span style="color:var(--text-dim);font-size:0.8rem;font-weight:800;text-transform:uppercase">Total Payable:</span>
+                    <span id="op-fee-amount" style="color:var(--success);font-weight:900;font-size:1.3rem;text-shadow:0 0 15px var(--success-shine)">₹0</span>
+                </div>
+                <div style="margin-top:8px;padding:8px;background:rgba(239,68,68,0.1);border-radius:8px;text-align:center;font-size:0.7rem;color:var(--danger);font-weight:800">
+                    <i class="fas fa-ban"></i> NON-REFUNDABLE
+                </div>
+            </div>
+
             <button class="payment-link-btn" id="payment-btn-op" onclick="openPaymentModal()" disabled>
-                <i class="fas fa-credit-card"></i> Pay with Cashfree
+                <i class="fas fa-credit-card"></i> Pay Now
             </button>
         </div>
 
@@ -498,11 +546,15 @@ body{background:var(--bg-base);color:var(--text-main);font-family:var(--font-ui)
             1. Payment successfully received ✅<br>
             2. Admin ko notification bhej di gayi hai<br>
             3. Admin approve karega to key auto-generate hogi<br>
-            4. Aap Payments tab me status dekh sakte hain
+            4. Aap Keys tab me status dekh sakte hain
         </div>
 
         <div style="background:rgba(245,158,11,0.05);border:1px solid rgba(245,158,11,0.2);border-radius:14px;padding:12px;text-align:center;font-size:0.75rem;color:var(--warning);margin-top:12px;font-weight:700">
             <i class="fas fa-clock"></i> Admin approval ke baad key active hogi
+        </div>
+
+        <div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);border-radius:14px;padding:12px;text-align:center;font-size:0.72rem;color:var(--danger);margin-top:10px;font-weight:800">
+            <i class="fas fa-ban"></i> FEES NON-REFUNDABLE
         </div>
 
         <button class="btn btn-primary" style="margin-top:20px" onclick="closePaymentModal()">Got It!</button>
@@ -538,8 +590,8 @@ body{background:var(--bg-base);color:var(--text-main);font-family:var(--font-ui)
             <div style="display:flex;align-items:flex-start;gap:12px;background:rgba(255,255,255,0.03);padding:12px;border-radius:12px">
                 <i class="fas fa-lock" style="color:var(--primary);margin-top:3px"></i>
                 <div>
-                    <div style="font-size:0.82rem;font-weight:800">Fixed Prices</div>
-                    <div style="font-size:0.7rem;color:var(--text-dim);margin-top:2px">Prices server par locked hain — koi edit nahi kar sakta.</div>
+                    <div style="font-size:0.82rem;font-weight:800">Fixed Prices + Non-Refundable</div>
+                    <div style="font-size:0.7rem;color:var(--text-dim);margin-top:2px">Prices server par locked hain, aur fees non-refundable hai.</div>
                 </div>
             </div>
         </div>
@@ -571,7 +623,7 @@ body{background:var(--bg-base);color:var(--text-main);font-family:var(--font-ui)
         </ul>
 
         <h2><i class="fas fa-credit-card"></i> 4. Payments & Fees</h2>
-        <p>All payments are processed securely through <strong>Cashfree Payment Gateway</strong>. Prices are fixed and non-negotiable. Once a key is generated and used, no refunds are applicable.</p>
+        <p>All payments are processed securely through <strong>Cashfree Payment Gateway</strong>. <strong>All fees are NON-REFUNDABLE.</strong> Once a key is generated and used, no refunds will be issued under any circumstances.</p>
 
         <h2><i class="fas fa-ban"></i> 5. Prohibited Activities</h2>
         <p>You may NOT use the Service for fraudulent purposes, distribute access without permission, or bypass security measures.</p>
@@ -623,28 +675,29 @@ body{background:var(--bg-base);color:var(--text-main);font-family:var(--font-ui)
         <div class="policy-header-text"><h1>Refund Policy</h1><p>Anurag Online Official</p></div>
     </div>
     <div class="policy-content">
-        <div class="policy-meta"><span><i class="fas fa-undo"></i> 7-Day Window</span></div>
+        <div class="policy-meta"><span><i class="fas fa-ban"></i> Non-Refundable</span></div>
 
-        <h2><i class="fas fa-check-circle"></i> Eligible for Refund</h2>
-        <ul>
-            <li>Payment deducted but key NOT generated within 24 hours</li>
-            <li>Duplicate payment due to technical error</li>
-            <li>Service unavailable for more than 48 hours</li>
-        </ul>
+        <h2><i class="fas fa-exclamation-triangle" style="color:var(--danger)"></i> All Fees Are NON-REFUNDABLE</h2>
+        <p><strong style="color:var(--danger)">Important:</strong> All fees paid for our services are <strong>strictly NON-REFUNDABLE</strong>. Once a payment is made, it cannot be reversed, refunded, or cancelled under any circumstances.</p>
 
         <h2><i class="fas fa-times-circle"></i> NOT Eligible for Refund</h2>
         <ul>
-            <li>Key already generated and used</li>
+            <li>Key already generated (whether used or not)</li>
             <li>Changed mind after purchase</li>
             <li>Violated Terms & Conditions</li>
+            <li>Unable to use the service due to user-side issues</li>
+            <li>Any other reason</li>
         </ul>
 
-        <h2><i class="fas fa-money-bill-wave"></i> Refund Method</h2>
-        <p>Refunds processed via <strong>Cashfree</strong> to original payment method within 5-7 business days.</p>
+        <h2><i class="fas fa-info-circle"></i> Why Non-Refundable?</h2>
+        <p>Our digital access keys are generated instantly upon payment. Once generated, the service has been delivered and cannot be reversed. Therefore, we maintain a strict no-refund policy.</p>
+
+        <h2><i class="fas fa-handshake"></i> Acknowledgment</h2>
+        <p>By completing a payment on this platform, you acknowledge and agree that you have read, understood, and accepted our <strong>NON-REFUNDABLE</strong> policy.</p>
 
         <div class="policy-contact-box">
-            <b>Refund Support:</b><br>
-            📧 <a href="mailto:refunds@anuragonlineofficial.com">refunds@anuragonlineofficial.com</a><br>
+            <b>Questions?</b><br>
+            📧 <a href="mailto:support@anuragonlineofficial.com">support@anuragonlineofficial.com</a><br>
             📱 Telegram: <a href="https://t.me/AnuragOnlineOfficial" target="_blank">@AnuragOnlineOfficial</a>
         </div>
     </div>
@@ -655,7 +708,6 @@ body{background:var(--bg-base);color:var(--text-main);font-family:var(--font-ui)
     <div class="nav-item active" onclick="nav('keys',this,'Keys','Manage Access')"><i class="fas fa-key"></i><span>Keys</span></div>
     <div class="nav-item admin-only" id="nav-bans" style="display:none" onclick="nav('bans',this,'Bans','Hardware Blocks')"><i class="fas fa-user-slash"></i><span>Bans</span></div>
     <div class="nav-item admin-only" id="nav-trials" style="display:none" onclick="nav('trials',this,'Trials','Active Timers')"><i class="fas fa-hourglass-half"></i><span>Trials</span></div>
-    <div class="nav-item admin-only" id="nav-payments" style="display:none" onclick="nav('payments',this,'Payments','Pending')"><i class="fas fa-credit-card"></i><span>Pay</span></div>
     <div class="nav-item admin-only admin-nav" id="nav-operators" style="display:none" onclick="nav('operators',this,'Operators','Team')"><i class="fas fa-users-cog"></i><span>Team</span></div>
     <div class="nav-item admin-only" id="nav-system" style="display:none" onclick="nav('system',this,'System','Config')"><i class="fas fa-cogs"></i><span>System</span></div>
 </div>
