@@ -31,7 +31,7 @@ document.getElementById('payment-form').addEventListener('submit', async (e) => 
       throw new Error(data.error || 'Order create failed');
     }
 
-    const cashfree = Cashfree({ mode: "sandbox" });
+    const cashfree = Cashfree({ mode: "production" });
 
     await cashfree.checkout({
       paymentSessionId: data.payment_session_id,
