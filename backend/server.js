@@ -1,17 +1,17 @@
- 
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-const { Cashfree } = require('cashfree-pg');
+const { Cashfree, CFEnvironment } = require('cashfree-pg');
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Cashfree Setup for v6
 const cashfree = new Cashfree(
   process.env.CASHFREE_ENV === 'production'
-    ? Cashfree.PRODUCTION
-    : Cashfree.SANDBOX,
+    ? CFEnvironment.PRODUCTION
+    : CFEnvironment.SANDBOX,
   process.env.CASHFREE_APP_ID,
   process.env.CASHFREE_SECRET_KEY
 );
@@ -54,6 +54,9 @@ app.post('/api/create-order', async (req, res) => {
     });
   } catch (error) {
     console.error('Order creation error:', error.message);
+    if (error.response) {
+      console.error('Cashfree response:', JSON.stringify(error.response.data));
+    }
     res.status(500).json({ success: false, error: error.message });
   }
 });
