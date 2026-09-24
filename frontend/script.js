@@ -1,8 +1,8 @@
 // ============================================
 // CONFIG
 // ============================================
-const DB_URL="https://anuragonline-43a15-default-rtdb.asia-southeast1.firebasedatabase.app";
-const DB_SECRET="vaTvZgPALWoBh1K4zS2Ocxqlqv3ExhsL7tja2QCe";
+const DB_URL="https://anurag-online-official-default-rtdb.asia-southeast1.firebasedatabase.app";
+const DB_SECRET="AIzaSyCT_hjM3oyBp-2kt9VdgIgGxxWtUQXgWko";
 const DEFAULT_ADMIN_USERNAME="admin";
 const DEFAULT_ADMIN_PASSWORD="admin123";
 
