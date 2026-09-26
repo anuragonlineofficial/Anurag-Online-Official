@@ -6,14 +6,17 @@ const DB_SECRET="AIzaSyCT_hjM3oyBp-2kt9VdgIgGxxWtUQXgWko";
 const DEFAULT_ADMIN_USERNAME="admin";
 const DEFAULT_ADMIN_PASSWORD="admin123";
 
+// 🔥 ROOT NODE
+const ROOT_NODE = "Anurag_Online_Official_Security";
+
 // 🔥 BACKEND URL (Render)
 const BACKEND_URL = "https://anurag-online-backend.onrender.com";
 
 // 📱 TELEGRAM
-const TELEGRAM_BOT_TOKEN="YOUR_BOT_TOKEN_HERE";
-const TELEGRAM_CHAT_ID="YOUR_CHAT_ID_HERE";
+const TELEGRAM_BOT_TOKEN="8875813789:AAEY77sZPekCfO5w21Gd3bvg3WFz6XEMt9A";
+const TELEGRAM_CHAT_ID="8915954728";
 
-// 🔒 FIXED PRICES (display only — actual charge server par)
+// 🔒 FIXED PRICES
 const PACKAGE_PRICES={7:2100,14:4200,21:6300,28:8400,35:10500,42:12600,49:14700};
 
 // ============================================
@@ -28,13 +31,37 @@ let cashfree=null;
 // ============================================
 function ensureDBShape(d){
     if(!d||typeof d!=='object')d={};
-    d.Keys=d.Keys||{};d.Banned_HWIDs=d.Banned_HWIDs||{};d.App_Status=d.App_Status||{};
-    d.Trials=d.Trials||{};d.Operators=d.Operators||{};d.Admin=d.Admin||{};d.PaymentRequests=d.PaymentRequests||{};
-    return d;
+    
+    let root = d;
+    if(ROOT_NODE && d[ROOT_NODE]){
+        root = d[ROOT_NODE];
+    }
+    
+    root.Keys=root.Keys||{};
+    root.Banned_HWIDs=root.Banned_HWIDs||{};
+    root.App_Status=root.App_Status||{};
+    root.Trials=root.Trials||{};
+    root.Operators=root.Operators||{};
+    root.Admin=root.Admin||{};
+    root.PaymentRequests=root.PaymentRequests||{};
+    
+    return {
+        App_Status: root.App_Status,
+        Keys: root.Keys,
+        Banned_HWIDs: root.Banned_HWIDs,
+        Trials: root.Trials,
+        Operators: root.Operators,
+        Admin: root.Admin,
+        PaymentRequests: root.PaymentRequests
+    };
+}
+
+function getPath(path){
+    return ROOT_NODE ? `${ROOT_NODE}/${path}` : path;
 }
 
 // ============================================
-// CASHFREE SDK INIT (PRODUCTION)
+// CASHFREE SDK INIT
 // ============================================
 async function initCashfree(){
     if(typeof Cashfree==='undefined'){console.log("Cashfree SDK not loaded");return;}
@@ -159,8 +186,9 @@ async function silentBackgroundSync(){
         if(res.ok){
             let data=await res.json();
             if(data&&typeof data==='object'){
-                DB.Keys=data.Keys||{};DB.Banned_HWIDs=data.Banned_HWIDs||{};DB.Trials=data.Trials||{};
-                DB.Operators=data.Operators||{};DB.PaymentRequests=data.PaymentRequests||{};
+                let root = ROOT_NODE && data[ROOT_NODE] ? data[ROOT_NODE] : data;
+                DB.Keys=root.Keys||{};DB.Banned_HWIDs=root.Banned_HWIDs||{};DB.Trials=root.Trials||{};
+                DB.Operators=root.Operators||{};DB.PaymentRequests=root.PaymentRequests||{};
                 renderKeys();
                 if(currentUser.role==='admin'){
                     renderBans();renderTrials();renderOperators();
@@ -174,7 +202,8 @@ async function syncNode(path,obj){
     try{
         const opts={method:obj===null?'DELETE':'PUT'};
         if(obj!==null)opts.body=JSON.stringify(obj);
-        await fetch(`${DB_URL}/${path}.json?auth=${DB_SECRET}`,opts);
+        const fullPath = getPath(path);
+        await fetch(`${DB_URL}/${fullPath}.json?auth=${DB_SECRET}`,opts);
     }catch(e){console.error(e);showIsland("Sync Error","error");}
 }
 
@@ -274,7 +303,6 @@ function autoCalculateExpiry(){
         document.getElementById('mod-key-amount').value=`₹${price} (LOCKED)`;
         document.getElementById('expiry-preview-text').textContent=`Expiry: ${dd}/${mm}/${yyyy} • Price: ₹${price}`;
 
-        // Update operator fee summary
         const opSum=document.getElementById('op-fee-summary');
         if(opSum){
             opSum.style.display='block';
@@ -283,7 +311,6 @@ function autoCalculateExpiry(){
             document.getElementById('op-fee-amount').textContent=`₹${price.toLocaleString('en-IN')}`;
         }
 
-        // Update admin fee summary
         const adSum=document.getElementById('admin-fee-summary');
         if(adSum){
             adSum.style.display='block';
@@ -416,7 +443,6 @@ function openKeyModal(){
     toggleAdvancedMode('hide');
     document.getElementById('key-modal').classList.add('active');
 
-    // Device limit change पर fee summary update
     setTimeout(()=>{
         const limitInput=document.getElementById('mod-key-limit');
         if(limitInput && !limitInput.dataset.listenerAdded){
@@ -482,6 +508,7 @@ async function saveKeyDirectly(){
     const limit=parseInt(document.getElementById('mod-key-limit').value)||1;
     const expDate=document.getElementById('mod-key-date').value;
     const days=selectedDays;
+    const username=document.getElementById('mod-key-name').value.trim() || "Anurag Online Official";
 
     if(!keyId)return showIsland("Enter Access Key","error");
     if(!days||!expDate)return showIsland("Select a package","error");
@@ -497,10 +524,15 @@ async function saveKeyDirectly(){
         closeModals();renderKeys();return;
     }
 
+    // 🔥 EXACT FORMAT
     const newKey={
-        Banned:false,DeviceLimit:limit,ExpiryDate:expDate,
-        CreatedAt:Date.now(),CreatedBy:currentUser.username,CreatedByRole:'admin',
-        Amount:0,PaymentVerified:false,AdminGenerated:true
+        Banned:false,
+        DeviceLimit:limit,
+        Devices:{
+            dummy:0
+        },
+        ExpiryDate:expDate,
+        Username:username
     };
     DB.Keys[keyId]=newKey;
     await syncNode(`Keys/${keyId}`,newKey);
@@ -615,10 +647,15 @@ async function approvePaymentRequest(requestId){
     expiry.setDate(expiry.getDate()+request.days);
     const yyyy=expiry.getFullYear(),mm=String(expiry.getMonth()+1).padStart(2,'0'),dd=String(expiry.getDate()).padStart(2,'0');
 
+    // 🔥 EXACT FORMAT
     const newKey={
-        Banned:false,DeviceLimit:request.deviceLimit,ExpiryDate:`${yyyy}-${mm}-${dd}`,
-        CreatedAt:Date.now(),CreatedBy:request.requestedBy,CreatedByRole:request.requestedByRole,
-        PaymentId:requestId,Amount:request.amount,PaymentVerified:true,Gateway:'Cashfree'
+        Banned:false,
+        DeviceLimit:request.deviceLimit,
+        Devices:{
+            dummy:0
+        },
+        ExpiryDate:`${yyyy}-${mm}-${dd}`,
+        Username:"Anurag Online Official"
     };
     DB.Keys[request.keyId]=newKey;
     await syncNode(`Keys/${request.keyId}`,newKey);
@@ -662,13 +699,11 @@ async function deleteKey(keyId){
     const keyData=DB.Keys[keyId];
     const paymentId=keyData&&keyData.PaymentId;
 
-    // 🔥 Delete associated payment request
     if(paymentId&&DB.PaymentRequests&&DB.PaymentRequests[paymentId]){
         delete DB.PaymentRequests[paymentId];
         await syncNode(`PaymentRequests/${paymentId}`,null);
     }
 
-    // Delete key
     delete DB.Keys[keyId];
     await syncNode(`Keys/${keyId}`,null);
 
@@ -693,8 +728,8 @@ function clearAllDevices(keyId){
     if(!currentUser)return;
     if(currentUser.role==='operator'&&DB.Keys[keyId].CreatedBy!==currentUser.username)return showIsland("Access Denied!","error");
     if(confirm(`Remove ALL devices from ${keyId}?`)){
-        DB.Keys[keyId].Devices={};
-        syncNode(`Keys/${keyId}/Devices`,null);
+        DB.Keys[keyId].Devices={dummy:0};
+        syncNode(`Keys/${keyId}/Devices`,{dummy:0});
         renderKeys();showIsland("All Devices Cleared","success","fa-broom");
     }
 }
@@ -745,7 +780,7 @@ function toggleCard(id){
 }
 
 // ============================================
-// RENDER KEYS + PENDING PAYMENTS (MERGED)
+// RENDER KEYS + PENDING PAYMENTS
 // ============================================
 function renderKeys(){
     if(!currentUser)return;
@@ -756,7 +791,7 @@ function renderKeys(){
     list.innerHTML="";
     let count=0;
 
-    // 🔥 PENDING PAYMENTS (सिर्फ admin को)
+    // 🔥 PENDING PAYMENTS (Admin only)
     if(currentUser.role==='admin' && DB.PaymentRequests){
         const pendingPayments = Object.entries(DB.PaymentRequests)
             .filter(([id,r])=>r.status==='pending')
