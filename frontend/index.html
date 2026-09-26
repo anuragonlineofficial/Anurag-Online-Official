@@ -353,16 +353,11 @@ body{background:var(--bg-base);color:var(--text-main);font-family:var(--font-ui)
         <div class="modal-title" id="modal-key-title">Generate Key</div>
         
         <div class="input-group">
-            <label>Access Key (AOO-IND-XXXXX)</label>
+            <label>Access Key</label>
             <div style="display:flex;gap:10px">
-                <input type="text" id="mod-key-id" placeholder="AOO-IND-1" style="font-family:var(--font-code)" readonly>
+                <input type="text" id="mod-key-id" placeholder="AO-VIP-11111" style="font-family:var(--font-code)">
                 <button class="btn" style="width:55px;background:var(--bg-input);padding:0;border:1px solid var(--border-soft)" onclick="randomKey()"><i class="fas fa-dice" style="color:var(--primary)"></i></button>
             </div>
-        </div>
-
-        <div class="input-group">
-            <label>Username / Client Name</label>
-            <input type="text" id="mod-key-username" placeholder="Anurag Online Official">
         </div>
 
         <div class="input-group"><label>Device Limit</label><input type="number" id="mod-key-limit" value="1" min="1"></div>
@@ -381,12 +376,13 @@ body{background:var(--bg-base);color:var(--text-main);font-family:var(--font-ui)
             <div class="expiry-preview"><i class="fas fa-calendar-check"></i> <span id="expiry-preview-text">Select a package</span></div>
         </div>
 
+        <!-- NON-REFUNDABLE WARNING -->
         <div style="background:rgba(239,68,68,0.08);border:2px solid rgba(239,68,68,0.35);border-radius:14px;padding:14px 16px;margin-top:14px;display:flex;align-items:flex-start;gap:12px;animation:warningPulse 2s ease-in-out infinite">
             <i class="fas fa-exclamation-triangle" style="color:var(--danger);font-size:1.3rem;margin-top:2px;flex-shrink:0"></i>
             <div style="text-align:left">
                 <div style="color:var(--danger);font-weight:900;font-size:0.85rem;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">⚠️ Non-Refundable Fees</div>
                 <div style="color:var(--text-dim);font-size:0.75rem;font-weight:600;line-height:1.5">
-                    Jo bhi fees hai wo <b style="color:var(--danger)">Non-Refundable</b> hai. Payment ke baad refund nahi milega.
+                    Jo bhi fees hai wo <b style="color:var(--danger)">Non-Refundable</b> hai. Payment ke baad refund nahi milega. Kripya soch samajh kar payment karein.
                 </div>
             </div>
         </div>
@@ -398,12 +394,24 @@ body{background:var(--bg-base);color:var(--text-main);font-family:var(--font-ui)
 
         <div class="input-group"><label>Expiry Date</label><input type="date" id="mod-key-date" readonly style="opacity:0.7"></div>
 
+        <div style="margin-top:15px;display:flex;justify-content:center">
+            <div class="interactive-text" style="color:var(--text-dim);font-size:0.75rem;font-weight:800;text-transform:uppercase;padding:10px 18px;background:rgba(255,255,255,0.05);border-radius:12px;border:1px solid var(--border-soft)" onclick="toggleAdvancedMode()">
+                Advanced Remarks <i class="fas fa-chevron-down" id="adv-chevron" style="transition:transform 0.3s;margin-left:5px"></i>
+            </div>
+        </div>
+
+        <div id="advanced-section" style="display:none;margin-top:15px;border-top:1px dashed rgba(255,255,255,0.1);padding-top:15px">
+            <div class="input-group"><label>Client Name (Local)</label><input type="text" id="mod-key-name" placeholder="John Doe"></div>
+            <div class="input-group"><label>Payment (Local)</label><input type="text" id="mod-key-payment" placeholder="₹500"></div>
+        </div>
+
         <!-- ADMIN ACTIONS -->
         <div id="admin-key-actions" style="display:none">
             <button class="btn" style="background:linear-gradient(135deg,var(--accent),#7e22ce);margin-bottom:12px;box-shadow:0 8px 25px var(--accent-shine)" onclick="saveKeyDirectly()">
                 <i class="fas fa-crown"></i> Generate Key (Admin Free)
             </button>
             
+            <!-- ADMIN FEE SUMMARY -->
             <div id="admin-fee-summary" style="background:linear-gradient(135deg,rgba(16,185,129,0.12),rgba(6,182,212,0.12));border:2px solid rgba(16,185,129,0.4);border-radius:14px;padding:16px;margin-bottom:14px;display:none">
                 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
                     <span style="color:var(--text-dim);font-size:0.75rem;font-weight:800;text-transform:uppercase;letter-spacing:1px"><i class="fas fa-receipt"></i> Payment Summary</span>
@@ -425,6 +433,7 @@ body{background:var(--bg-base);color:var(--text-main);font-family:var(--font-ui)
 
         <!-- OPERATOR ACTIONS -->
         <div id="operator-key-actions">
+            <!-- OPERATOR FEE SUMMARY -->
             <div id="op-fee-summary" style="background:linear-gradient(135deg,rgba(16,185,129,0.12),rgba(6,182,212,0.12));border:2px solid rgba(16,185,129,0.4);border-radius:14px;padding:16px;margin-bottom:14px;display:none">
                 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
                     <span style="color:var(--text-dim);font-size:0.75rem;font-weight:800;text-transform:uppercase;letter-spacing:1px"><i class="fas fa-receipt"></i> Payment Summary</span>
@@ -598,10 +607,13 @@ body{background:var(--bg-base);color:var(--text-main);font-family:var(--font-ui)
     </div>
     <div class="policy-content">
         <div class="policy-meta"><span><i class="fas fa-calendar"></i> Effective: 01 Jan 2025</span></div>
+
         <h2><i class="fas fa-handshake"></i> 1. Acceptance of Terms</h2>
         <p>By accessing or using <strong>Anurag Online Official</strong> ("the Service"), you agree to be bound by these Terms & Conditions.</p>
+
         <h2><i class="fas fa-info-circle"></i> 2. Description of Service</h2>
         <p>Anurag Online Official provides digital access key management, online payment processing, and related services.</p>
+
         <h2><i class="fas fa-user-check"></i> 3. User Responsibilities</h2>
         <ul>
             <li>Provide accurate information during registration</li>
@@ -609,12 +621,16 @@ body{background:var(--bg-base);color:var(--text-main);font-family:var(--font-ui)
             <li>Not share your account with any third party</li>
             <li>Not use the Service for any illegal purpose</li>
         </ul>
+
         <h2><i class="fas fa-credit-card"></i> 4. Payments & Fees</h2>
         <p>All payments are processed securely through <strong>Cashfree Payment Gateway</strong>. <strong>All fees are NON-REFUNDABLE.</strong> Once a key is generated and used, no refunds will be issued under any circumstances.</p>
+
         <h2><i class="fas fa-ban"></i> 5. Prohibited Activities</h2>
         <p>You may NOT use the Service for fraudulent purposes, distribute access without permission, or bypass security measures.</p>
+
         <h2><i class="fas fa-gavel"></i> 6. Governing Law</h2>
         <p>These terms are governed by the laws of India.</p>
+
         <div class="policy-contact-box">
             <b>Contact:</b><br>
             📧 <a href="mailto:support@anuragonlineofficial.com">support@anuragonlineofficial.com</a><br>
@@ -631,16 +647,20 @@ body{background:var(--bg-base);color:var(--text-main);font-family:var(--font-ui)
     </div>
     <div class="policy-content">
         <div class="policy-meta"><span><i class="fas fa-lock"></i> GDPR Compliant</span></div>
+
         <h2><i class="fas fa-info-circle"></i> 1. Introduction</h2>
         <p>Anurag Online Official respects your privacy.</p>
+
         <h2><i class="fas fa-database"></i> 2. Information We Collect</h2>
         <ul>
             <li><strong>Personal Info:</strong> Name, email, phone number</li>
             <li><strong>Payment Info:</strong> Transaction IDs (handled by Cashfree)</li>
             <li><strong>Device Info:</strong> Hardware ID, browser type, IP address</li>
         </ul>
+
         <h2><i class="fas fa-share-alt"></i> 3. Information Sharing</h2>
         <p>We do NOT sell your data. We share info with Cashfree (payments) and Firebase (storage) only.</p>
+
         <div class="policy-contact-box">
             <b>Data Protection Officer:</b><br>
             📧 <a href="mailto:privacy@anuragonlineofficial.com">privacy@anuragonlineofficial.com</a>
@@ -656,8 +676,10 @@ body{background:var(--bg-base);color:var(--text-main);font-family:var(--font-ui)
     </div>
     <div class="policy-content">
         <div class="policy-meta"><span><i class="fas fa-ban"></i> Non-Refundable</span></div>
+
         <h2><i class="fas fa-exclamation-triangle" style="color:var(--danger)"></i> All Fees Are NON-REFUNDABLE</h2>
         <p><strong style="color:var(--danger)">Important:</strong> All fees paid for our services are <strong>strictly NON-REFUNDABLE</strong>. Once a payment is made, it cannot be reversed, refunded, or cancelled under any circumstances.</p>
+
         <h2><i class="fas fa-times-circle"></i> NOT Eligible for Refund</h2>
         <ul>
             <li>Key already generated (whether used or not)</li>
@@ -666,10 +688,13 @@ body{background:var(--bg-base);color:var(--text-main);font-family:var(--font-ui)
             <li>Unable to use the service due to user-side issues</li>
             <li>Any other reason</li>
         </ul>
+
         <h2><i class="fas fa-info-circle"></i> Why Non-Refundable?</h2>
         <p>Our digital access keys are generated instantly upon payment. Once generated, the service has been delivered and cannot be reversed. Therefore, we maintain a strict no-refund policy.</p>
+
         <h2><i class="fas fa-handshake"></i> Acknowledgment</h2>
         <p>By completing a payment on this platform, you acknowledge and agree that you have read, understood, and accepted our <strong>NON-REFUNDABLE</strong> policy.</p>
+
         <div class="policy-contact-box">
             <b>Questions?</b><br>
             📧 <a href="mailto:support@anuragonlineofficial.com">support@anuragonlineofficial.com</a><br>
