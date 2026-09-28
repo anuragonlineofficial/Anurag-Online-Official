@@ -39,6 +39,7 @@ body{background:var(--bg-base);color:var(--text-main);font-family:var(--font-ui)
 .btn{width:100%;padding:17px;border-radius:var(--radius-sm);border:none;font-size:1.05rem;font-weight:800;text-transform:uppercase;cursor:pointer;transition:all 0.3s ease;color:#fff;font-family:var(--font-ui);letter-spacing:0.5px}
 .btn-primary{background:linear-gradient(135deg,var(--primary),var(--primary-dark));box-shadow:0 8px 25px var(--primary-shine)}
 .btn-primary:active{transform:scale(0.97)}
+.btn-primary:disabled{opacity:0.5;cursor:not-allowed}
 .login-hint{margin-top:16px;padding:12px 14px;background:rgba(6,182,212,0.05);border:1px solid rgba(6,182,212,0.15);border-radius:12px;font-size:0.72rem;color:var(--text-dim);font-weight:600;line-height:1.6;text-align:left}
 .login-hint i{color:var(--primary)}
 .login-hint b{color:var(--primary)}
@@ -82,11 +83,14 @@ body{background:var(--bg-base);color:var(--text-main);font-family:var(--font-ui)
 .list-card.banned::before{background:var(--danger)}
 .list-card.expired::before{background:var(--danger)}
 .list-card.operator::before{background:var(--accent)}
-.list-card.payment::before{background:var(--warning)}
 .card-header-main{display:flex;justify-content:space-between;align-items:center;cursor:pointer;user-select:none}
 .card-header-left{display:flex;flex-direction:column;gap:6px;flex:1}
 .card-header-right{display:flex;align-items:center;gap:12px}
-.card-title{font-family:var(--font-code);font-size:1.05rem;font-weight:800;color:#fff;display:flex;align-items:center;gap:8px}
+.card-title{font-family:var(--font-code);font-size:1.05rem;font-weight:800;color:#fff;display:flex;align-items:center;gap:8px;word-break:break-all}
+.card-title.copyable{cursor:pointer;transition:all 0.2s ease;border-radius:6px;padding:2px 4px;margin:-2px -4px}
+.card-title.copyable:active{background:rgba(6,182,212,0.15);transform:scale(0.97)}
+.card-title .copy-hint{font-size:0.6rem;color:var(--text-muted);font-weight:600;opacity:0.7;margin-left:4px;transition:all 0.2s ease}
+.card-title.copyable:hover .copy-hint{opacity:1;color:var(--primary)}
 .card-subtitle{font-size:0.75rem;color:var(--text-dim);font-weight:600;display:flex;gap:12px;flex-wrap:wrap}
 .badge{font-size:0.6rem;font-weight:800;padding:5px 11px;border-radius:8px;text-transform:uppercase;background:rgba(255,255,255,0.05);color:var(--text-dim);border:1px solid transparent;letter-spacing:0.5px}
 .badge.active{background:rgba(16,185,129,0.15);color:var(--success);border-color:rgba(16,185,129,0.3)}
@@ -101,7 +105,7 @@ body{background:var(--bg-base);color:var(--text-main);font-family:var(--font-ui)
 .chevron-icon{font-size:0.9rem;color:var(--text-dim);transition:transform 0.4s ease}
 .list-card.expanded .chevron-icon{transform:rotate(180deg);color:var(--primary)}
 .card-details{max-height:0;overflow:hidden;opacity:0;display:flex;flex-direction:column;gap:10px;transition:max-height 0.5s ease,opacity 0.3s ease,margin-top 0.3s ease,padding-top 0.3s ease}
-.list-card.expanded .card-details{max-height:1200px;opacity:1;margin-top:14px;padding-top:14px;border-top:1px dashed rgba(255,255,255,0.1)}
+.list-card.expanded .card-details{max-height:1400px;opacity:1;margin-top:14px;padding-top:14px;border-top:1px dashed rgba(255,255,255,0.1)}
 .devices-wrapper{max-height:350px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding-right:4px}
 .devices-wrapper::-webkit-scrollbar{display:block;width:4px}
 .devices-wrapper::-webkit-scrollbar-thumb{background:rgba(6,182,212,0.4);border-radius:4px}
@@ -109,13 +113,14 @@ body{background:var(--bg-base);color:var(--text-main);font-family:var(--font-ui)
 .interactive-text{cursor:pointer;transition:all 0.2s ease;display:inline-flex;align-items:center;gap:6px;user-select:none}
 .interactive-text:active{opacity:0.5;transform:scale(0.98)}
 .device-hwid{font-family:var(--font-code);color:#a1a1aa;font-weight:500;word-break:break-all}
-.card-actions{display:flex;gap:10px;margin-top:8px}
-.btn-xs{flex:1;padding:13px;border-radius:12px;font-size:0.72rem;font-weight:800;cursor:pointer;color:#fff;background:rgba(255,255,255,0.05);border:none;display:flex;justify-content:center;align-items:center;gap:6px;text-transform:uppercase;transition:all 0.3s ease;letter-spacing:0.5px}
+.card-actions{display:flex;gap:10px;margin-top:8px;flex-wrap:wrap}
+.btn-xs{flex:1;min-width:70px;padding:13px;border-radius:12px;font-size:0.72rem;font-weight:800;cursor:pointer;color:#fff;background:rgba(255,255,255,0.05);border:none;display:flex;justify-content:center;align-items:center;gap:6px;text-transform:uppercase;transition:all 0.3s ease;letter-spacing:0.5px}
 .btn-xs:active{transform:scale(0.92)}
 .btn-xs.edit{color:var(--primary);background:rgba(6,182,212,0.1)}
 .btn-xs.ban{color:var(--warning);background:rgba(245,158,11,0.1)}
 .btn-xs.del{color:var(--danger);background:rgba(239,68,68,0.1)}
 .btn-xs.approve{color:var(--success);background:rgba(16,185,129,0.15)}
+.btn-xs.unban{color:var(--success);background:rgba(16,185,129,0.1)}
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.8);backdrop-filter:blur(8px);display:none;justify-content:center;align-items:flex-end;z-index:1000;opacity:0;transition:opacity 0.3s ease}
 .modal-overlay.active{display:flex;opacity:1}
 .modal-card{background:linear-gradient(135deg,var(--bg-card),var(--bg-elevated));width:100%;max-width:600px;border-radius:28px 28px 0 0;padding:24px 24px 40px;transform:translateY(100%);transition:transform 0.5s cubic-bezier(0.34,1.56,0.64,1);border-top:1px solid var(--border-primary);box-shadow:0 -10px 50px rgba(0,0,0,0.9);max-height:90dvh;overflow-y:auto}
@@ -157,7 +162,7 @@ body{background:var(--bg-base);color:var(--text-main);font-family:var(--font-ui)
 .payment-link-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:16px;border-radius:var(--radius-sm);background:linear-gradient(135deg,#10b981,#059669);color:#fff;border:none;font-size:0.95rem;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;cursor:pointer;box-shadow:0 8px 25px var(--success-shine);transition:all 0.3s ease;margin-bottom:12px;font-family:var(--font-ui)}
 .payment-link-btn:active{transform:scale(0.97)}
 .payment-link-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none;background:rgba(255,255,255,0.05);box-shadow:none}
-.policy-page{display:none;padding:30px 24px 100px;max-width:800px;margin:0 auto;min-height:100dvh;background:var(--bg-base)}
+.policy-page{display:none;padding:30px 24px 100px;max-width:800px;margin:0 auto;min-height:100dvh;background:var(--bg-base);position:fixed;inset:0;overflow-y:auto;z-index:900}
 .policy-page.active{display:block}
 .policy-header{display:flex;align-items:center;gap:14px;margin-bottom:24px;padding-bottom:18px;border-bottom:1px solid var(--border-soft)}
 .policy-back-btn{background:var(--bg-input);border:1px solid var(--border-soft);color:var(--text-main);width:44px;height:44px;border-radius:12px;font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.3s ease;flex-shrink:0}
@@ -172,13 +177,14 @@ body{background:var(--bg-base);color:var(--text-main);font-family:var(--font-ui)
 .policy-content ul li{margin-bottom:6px;line-height:1.7}
 .policy-content strong{color:#fff;font-weight:700}
 .policy-content a{color:var(--primary);text-decoration:none;font-weight:700}
-.policy-content a:hover{text-decoration:underline}
 .policy-meta{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px;padding-bottom:16px;border-bottom:1px dashed rgba(255,255,255,0.1)}
 .policy-meta span{font-size:0.68rem;font-weight:800;padding:6px 12px;background:rgba(6,182,212,0.1);border:1px solid rgba(6,182,212,0.25);border-radius:8px;color:var(--primary);text-transform:uppercase;letter-spacing:0.5px}
 .policy-contact-box{background:rgba(6,182,212,0.05);border:1px solid rgba(6,182,212,0.2);border-radius:14px;padding:16px;margin-top:20px;font-size:0.82rem}
 .policy-contact-box b{color:var(--primary)}
 .locked-price{position:relative}
 .locked-price::after{content:'\f023';font-family:'Font Awesome 6 Free';font-weight:900;position:absolute;right:14px;top:50%;transform:translateY(-50%);color:var(--success);font-size:0.85rem;pointer-events:none}
+.db-info{font-size:0.65rem;color:var(--text-muted);text-align:center;padding:10px;word-break:break-all}
+.db-info b{color:var(--primary)}
 </style>
 </head>
 <body>
@@ -195,7 +201,7 @@ body{background:var(--bg-base);color:var(--text-main);font-family:var(--font-ui)
     
     <div class="login-card">
         <div class="input-group">
-            <label><i class="fas fa-user"></i> Username</label>
+            <label><i class="fas fa-user"></i> Username / Email</label>
             <input type="text" id="login-username" placeholder="Enter your username" autocomplete="off">
         </div>
         <div class="input-group">
@@ -203,12 +209,12 @@ body{background:var(--bg-base);color:var(--text-main);font-family:var(--font-ui)
             <input type="password" id="login-password" placeholder="Enter your password" autocomplete="off">
         </div>
         <button class="btn btn-primary" id="login-btn" onclick="doLogin()">
-            <i class="fas fa-fingerprint" style="margin-right:8px"></i> LOGIN
+            <i class="fas fa-fingerprint" style="margin-right:8px"></i> <span id="login-btn-text">LOGIN</span>
         </button>
         
         <div class="login-hint">
-            <i class="fas fa-info-circle"></i> <b>Admin:</b> Default credentials use karein<br>
-            <i class="fas fa-user"></i> <b>Operator:</b> Admin se mila ID/Password daalein
+            <i class="fas fa-info-circle"></i> <b>Note:</b> Admin / Operator credentials apne provider se lein.<br>
+            <i class="fas fa-shield-alt"></i> Authorized access only.
         </div>
 
         <div class="legal-links">
@@ -237,14 +243,14 @@ body{background:var(--bg-base);color:var(--text-main);font-family:var(--font-ui)
             <span class="app-sub-title" id="page-subtitle-text">Manage Access</span>
         </div>
         <div class="header-actions">
-            <button class="btn-icon" onclick="fetchDatabase()"><i class="fas fa-sync-alt" id="reload-icon"></i></button>
+            <button class="btn-icon" onclick="syncDB()"><i class="fas fa-sync-alt" id="reload-icon"></i></button>
             <button class="btn-icon logout" onclick="logout()"><i class="fas fa-power-off"></i></button>
         </div>
     </div>
 
     <div id="view-keys" class="view active">
         <div class="search-bar-container">
-            <input type="text" class="search-bar" id="search-keys" placeholder="Search Keys, Payments or Devices..." oninput="renderKeys()">
+            <input type="text" class="search-bar" id="search-keys" placeholder="Search Keys, Username or Devices..." oninput="renderKeys()">
             <div class="filters-container" id="key-filters">
                 <button class="filter-pill active" data-filter="all" onclick="setKeyFilter('all')">All</button>
                 <button class="filter-pill" data-filter="active" onclick="setKeyFilter('active')">Active</button>
@@ -264,13 +270,6 @@ body{background:var(--bg-base);color:var(--text-main);font-family:var(--font-ui)
         </div>
         <div id="bans-list"></div>
         <button class="fab-btn" onclick="openBanModal()" style="background:linear-gradient(135deg,var(--danger),#b91c1c)"><i class="fas fa-ban"></i></button>
-    </div>
-
-    <div id="view-trials" class="view">
-        <div class="search-bar-container">
-            <input type="text" class="search-bar" id="search-trials" placeholder="Search Trial HWID..." oninput="renderTrials()">
-        </div>
-        <div id="trials-list"></div>
     </div>
 
     <div id="view-operators" class="view">
@@ -339,6 +338,8 @@ body{background:var(--bg-base);color:var(--text-main);font-family:var(--font-ui)
                 <button class="btn" style="background:rgba(6,182,212,0.1);color:var(--primary);border:1px solid rgba(6,182,212,0.3);padding:14px;font-size:0.85rem" onclick="openPolicy('refund')"><i class="fas fa-undo"></i> Refund Policy</button>
             </div>
 
+            <div class="db-info">Connected DB: <b id="db-url-display">-</b></div>
+
             <div style="margin-top:25px;text-align:center">
                 <a href="https://t.me/AnuragOnlineOfficial" target="_blank" style="color:var(--primary);text-decoration:none;font-size:0.85rem;font-weight:800"><i class="fab fa-telegram"></i> @AnuragOnlineOfficial</a>
             </div>
@@ -355,10 +356,12 @@ body{background:var(--bg-base);color:var(--text-main);font-family:var(--font-ui)
         <div class="input-group">
             <label>Access Key</label>
             <div style="display:flex;gap:10px">
-                <input type="text" id="mod-key-id" placeholder="AO-VIP-11111" style="font-family:var(--font-code)">
+                <input type="text" id="mod-key-id" placeholder="AO-IND-1" style="font-family:var(--font-code)" readonly>
                 <button class="btn" style="width:55px;background:var(--bg-input);padding:0;border:1px solid var(--border-soft)" onclick="randomKey()"><i class="fas fa-dice" style="color:var(--primary)"></i></button>
             </div>
         </div>
+
+        <div class="input-group"><label>Username / Client Name</label><input type="text" id="mod-key-username" placeholder="John Doe"></div>
 
         <div class="input-group"><label>Device Limit</label><input type="number" id="mod-key-limit" value="1" min="1"></div>
 
@@ -376,13 +379,12 @@ body{background:var(--bg-base);color:var(--text-main);font-family:var(--font-ui)
             <div class="expiry-preview"><i class="fas fa-calendar-check"></i> <span id="expiry-preview-text">Select a package</span></div>
         </div>
 
-        <!-- NON-REFUNDABLE WARNING -->
         <div style="background:rgba(239,68,68,0.08);border:2px solid rgba(239,68,68,0.35);border-radius:14px;padding:14px 16px;margin-top:14px;display:flex;align-items:flex-start;gap:12px;animation:warningPulse 2s ease-in-out infinite">
             <i class="fas fa-exclamation-triangle" style="color:var(--danger);font-size:1.3rem;margin-top:2px;flex-shrink:0"></i>
             <div style="text-align:left">
                 <div style="color:var(--danger);font-weight:900;font-size:0.85rem;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">⚠️ Non-Refundable Fees</div>
                 <div style="color:var(--text-dim);font-size:0.75rem;font-weight:600;line-height:1.5">
-                    Jo bhi fees hai wo <b style="color:var(--danger)">Non-Refundable</b> hai. Payment ke baad refund nahi milega. Kripya soch samajh kar payment karein.
+                    Jo bhi fees hai wo <b style="color:var(--danger)">Non-Refundable</b> hai. Payment ke baad refund nahi milega.
                 </div>
             </div>
         </div>
@@ -401,17 +403,14 @@ body{background:var(--bg-base);color:var(--text-main);font-family:var(--font-ui)
         </div>
 
         <div id="advanced-section" style="display:none;margin-top:15px;border-top:1px dashed rgba(255,255,255,0.1);padding-top:15px">
-            <div class="input-group"><label>Client Name (Local)</label><input type="text" id="mod-key-name" placeholder="John Doe"></div>
             <div class="input-group"><label>Payment (Local)</label><input type="text" id="mod-key-payment" placeholder="₹500"></div>
         </div>
 
-        <!-- ADMIN ACTIONS -->
         <div id="admin-key-actions" style="display:none">
             <button class="btn" style="background:linear-gradient(135deg,var(--accent),#7e22ce);margin-bottom:12px;box-shadow:0 8px 25px var(--accent-shine)" onclick="saveKeyDirectly()">
                 <i class="fas fa-crown"></i> Generate Key (Admin Free)
             </button>
             
-            <!-- ADMIN FEE SUMMARY -->
             <div id="admin-fee-summary" style="background:linear-gradient(135deg,rgba(16,185,129,0.12),rgba(6,182,212,0.12));border:2px solid rgba(16,185,129,0.4);border-radius:14px;padding:16px;margin-bottom:14px;display:none">
                 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
                     <span style="color:var(--text-dim);font-size:0.75rem;font-weight:800;text-transform:uppercase;letter-spacing:1px"><i class="fas fa-receipt"></i> Payment Summary</span>
@@ -431,9 +430,7 @@ body{background:var(--bg-base);color:var(--text-main);font-family:var(--font-ui)
             </button>
         </div>
 
-        <!-- OPERATOR ACTIONS -->
         <div id="operator-key-actions">
-            <!-- OPERATOR FEE SUMMARY -->
             <div id="op-fee-summary" style="background:linear-gradient(135deg,rgba(16,185,129,0.12),rgba(6,182,212,0.12));border:2px solid rgba(16,185,129,0.4);border-radius:14px;padding:16px;margin-bottom:14px;display:none">
                 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
                     <span style="color:var(--text-dim);font-size:0.75rem;font-weight:800;text-transform:uppercase;letter-spacing:1px"><i class="fas fa-receipt"></i> Payment Summary</span>
@@ -549,19 +546,11 @@ body{background:var(--bg-base);color:var(--text-main);font-family:var(--font-ui)
             4. Aap Keys tab me status dekh sakte hain
         </div>
 
-        <div style="background:rgba(245,158,11,0.05);border:1px solid rgba(245,158,11,0.2);border-radius:14px;padding:12px;text-align:center;font-size:0.75rem;color:var(--warning);margin-top:12px;font-weight:700">
-            <i class="fas fa-clock"></i> Admin approval ke baad key active hogi
-        </div>
-
-        <div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);border-radius:14px;padding:12px;text-align:center;font-size:0.72rem;color:var(--danger);margin-top:10px;font-weight:800">
-            <i class="fas fa-ban"></i> FEES NON-REFUNDABLE
-        </div>
-
         <button class="btn btn-primary" style="margin-top:20px" onclick="closePaymentModal()">Got It!</button>
     </div>
 </div>
 
-<!-- CHANGELOG MODAL -->
+<!-- CHANGELOG MODAL (Simplified — no Firebase / Cashfree mention) -->
 <div class="modal-overlay" id="changelog-modal" style="align-items:center;z-index:9999">
     <div class="modal-card" style="border-radius:24px;max-width:420px;margin:auto">
         <div class="modal-handle"></div>
@@ -574,24 +563,24 @@ body{background:var(--bg-base);color:var(--text-main);font-family:var(--font-ui)
         </div>
         <div style="display:flex;flex-direction:column;gap:10px">
             <div style="display:flex;align-items:flex-start;gap:12px;background:rgba(255,255,255,0.03);padding:12px;border-radius:12px">
-                <i class="fas fa-crown" style="color:var(--accent);margin-top:3px"></i>
+                <i class="fas fa-key" style="color:var(--primary);margin-top:3px"></i>
                 <div>
-                    <div style="font-size:0.82rem;font-weight:800">Admin Full Control</div>
-                    <div style="font-size:0.7rem;color:var(--text-dim);margin-top:2px">Admin bina payment bhi key bana sakta hai.</div>
+                    <div style="font-size:0.82rem;font-weight:800">Access Key Manager</div>
+                    <div style="font-size:0.7rem;color:var(--text-dim);margin-top:2px">Keys generate, edit aur manage karein.</div>
                 </div>
             </div>
             <div style="display:flex;align-items:flex-start;gap:12px;background:rgba(255,255,255,0.03);padding:12px;border-radius:12px">
-                <i class="fas fa-credit-card" style="color:var(--success);margin-top:3px"></i>
+                <i class="fas fa-lock" style="color:var(--success);margin-top:3px"></i>
                 <div>
-                    <div style="font-size:0.82rem;font-weight:800">Cashfree Payments</div>
-                    <div style="font-size:0.7rem;color:var(--text-dim);margin-top:2px">Operator payment ke baad hi key bana sakta hai.</div>
+                    <div style="font-size:0.82rem;font-weight:800">Fixed Prices</div>
+                    <div style="font-size:0.7rem;color:var(--text-dim);margin-top:2px">Prices locked, fees non-refundable.</div>
                 </div>
             </div>
             <div style="display:flex;align-items:flex-start;gap:12px;background:rgba(255,255,255,0.03);padding:12px;border-radius:12px">
-                <i class="fas fa-lock" style="color:var(--primary);margin-top:3px"></i>
+                <i class="fas fa-shield-halved" style="color:var(--accent);margin-top:3px"></i>
                 <div>
-                    <div style="font-size:0.82rem;font-weight:800">Fixed Prices + Non-Refundable</div>
-                    <div style="font-size:0.7rem;color:var(--text-dim);margin-top:2px">Prices server par locked hain, aur fees non-refundable hai.</div>
+                    <div style="font-size:0.82rem;font-weight:800">Secure Access</div>
+                    <div style="font-size:0.7rem;color:var(--text-dim);margin-top:2px">Authorized users only.</div>
                 </div>
             </div>
         </div>
@@ -607,13 +596,10 @@ body{background:var(--bg-base);color:var(--text-main);font-family:var(--font-ui)
     </div>
     <div class="policy-content">
         <div class="policy-meta"><span><i class="fas fa-calendar"></i> Effective: 01 Jan 2025</span></div>
-
         <h2><i class="fas fa-handshake"></i> 1. Acceptance of Terms</h2>
         <p>By accessing or using <strong>Anurag Online Official</strong> ("the Service"), you agree to be bound by these Terms & Conditions.</p>
-
         <h2><i class="fas fa-info-circle"></i> 2. Description of Service</h2>
         <p>Anurag Online Official provides digital access key management, online payment processing, and related services.</p>
-
         <h2><i class="fas fa-user-check"></i> 3. User Responsibilities</h2>
         <ul>
             <li>Provide accurate information during registration</li>
@@ -621,16 +607,12 @@ body{background:var(--bg-base);color:var(--text-main);font-family:var(--font-ui)
             <li>Not share your account with any third party</li>
             <li>Not use the Service for any illegal purpose</li>
         </ul>
-
         <h2><i class="fas fa-credit-card"></i> 4. Payments & Fees</h2>
-        <p>All payments are processed securely through <strong>Cashfree Payment Gateway</strong>. <strong>All fees are NON-REFUNDABLE.</strong> Once a key is generated and used, no refunds will be issued under any circumstances.</p>
-
+        <p>All payments are processed securely through <strong>Cashfree Payment Gateway</strong>. <strong>All fees are NON-REFUNDABLE.</strong></p>
         <h2><i class="fas fa-ban"></i> 5. Prohibited Activities</h2>
         <p>You may NOT use the Service for fraudulent purposes, distribute access without permission, or bypass security measures.</p>
-
         <h2><i class="fas fa-gavel"></i> 6. Governing Law</h2>
         <p>These terms are governed by the laws of India.</p>
-
         <div class="policy-contact-box">
             <b>Contact:</b><br>
             📧 <a href="mailto:support@anuragonlineofficial.com">support@anuragonlineofficial.com</a><br>
@@ -647,20 +629,16 @@ body{background:var(--bg-base);color:var(--text-main);font-family:var(--font-ui)
     </div>
     <div class="policy-content">
         <div class="policy-meta"><span><i class="fas fa-lock"></i> GDPR Compliant</span></div>
-
         <h2><i class="fas fa-info-circle"></i> 1. Introduction</h2>
         <p>Anurag Online Official respects your privacy.</p>
-
         <h2><i class="fas fa-database"></i> 2. Information We Collect</h2>
         <ul>
             <li><strong>Personal Info:</strong> Name, email, phone number</li>
             <li><strong>Payment Info:</strong> Transaction IDs (handled by Cashfree)</li>
             <li><strong>Device Info:</strong> Hardware ID, browser type, IP address</li>
         </ul>
-
         <h2><i class="fas fa-share-alt"></i> 3. Information Sharing</h2>
         <p>We do NOT sell your data. We share info with Cashfree (payments) and Firebase (storage) only.</p>
-
         <div class="policy-contact-box">
             <b>Data Protection Officer:</b><br>
             📧 <a href="mailto:privacy@anuragonlineofficial.com">privacy@anuragonlineofficial.com</a>
@@ -676,10 +654,8 @@ body{background:var(--bg-base);color:var(--text-main);font-family:var(--font-ui)
     </div>
     <div class="policy-content">
         <div class="policy-meta"><span><i class="fas fa-ban"></i> Non-Refundable</span></div>
-
         <h2><i class="fas fa-exclamation-triangle" style="color:var(--danger)"></i> All Fees Are NON-REFUNDABLE</h2>
-        <p><strong style="color:var(--danger)">Important:</strong> All fees paid for our services are <strong>strictly NON-REFUNDABLE</strong>. Once a payment is made, it cannot be reversed, refunded, or cancelled under any circumstances.</p>
-
+        <p><strong style="color:var(--danger)">Important:</strong> All fees paid for our services are <strong>strictly NON-REFUNDABLE</strong>. Once a payment is made, it cannot be reversed, refunded, or cancelled.</p>
         <h2><i class="fas fa-times-circle"></i> NOT Eligible for Refund</h2>
         <ul>
             <li>Key already generated (whether used or not)</li>
@@ -688,13 +664,10 @@ body{background:var(--bg-base);color:var(--text-main);font-family:var(--font-ui)
             <li>Unable to use the service due to user-side issues</li>
             <li>Any other reason</li>
         </ul>
-
         <h2><i class="fas fa-info-circle"></i> Why Non-Refundable?</h2>
-        <p>Our digital access keys are generated instantly upon payment. Once generated, the service has been delivered and cannot be reversed. Therefore, we maintain a strict no-refund policy.</p>
-
+        <p>Our digital access keys are generated instantly upon payment. Once generated, the service has been delivered and cannot be reversed.</p>
         <h2><i class="fas fa-handshake"></i> Acknowledgment</h2>
         <p>By completing a payment on this platform, you acknowledge and agree that you have read, understood, and accepted our <strong>NON-REFUNDABLE</strong> policy.</p>
-
         <div class="policy-contact-box">
             <b>Questions?</b><br>
             📧 <a href="mailto:support@anuragonlineofficial.com">support@anuragonlineofficial.com</a><br>
@@ -707,11 +680,871 @@ body{background:var(--bg-base);color:var(--text-main);font-family:var(--font-ui)
 <div class="bottom-nav" id="bottom-nav" style="display:none">
     <div class="nav-item active" onclick="nav('keys',this,'Keys','Manage Access')"><i class="fas fa-key"></i><span>Keys</span></div>
     <div class="nav-item admin-only" id="nav-bans" style="display:none" onclick="nav('bans',this,'Bans','Hardware Blocks')"><i class="fas fa-user-slash"></i><span>Bans</span></div>
-    <div class="nav-item admin-only" id="nav-trials" style="display:none" onclick="nav('trials',this,'Trials','Active Timers')"><i class="fas fa-hourglass-half"></i><span>Trials</span></div>
     <div class="nav-item admin-only admin-nav" id="nav-operators" style="display:none" onclick="nav('operators',this,'Operators','Team')"><i class="fas fa-users-cog"></i><span>Team</span></div>
     <div class="nav-item admin-only" id="nav-system" style="display:none" onclick="nav('system',this,'System','Config')"><i class="fas fa-cogs"></i><span>System</span></div>
 </div>
 
-<script src="script.js"></script>
+<script>
+// ============================================================
+// ANURAG ONLINE OFFICIAL — MERGED FRONTEND
+// Firebase Backend + DPMods_Security Schema + Admin/Operator
+// ============================================================
+
+// ---------- HARDCODED CONFIG (not shown in UI) ----------
+const FIREBASE_URL = 'https://anurag-online-official-default-rtdb.asia-southeast1.firebasedatabase.app';
+
+// Admin credentials — obfuscated at rest (Base64)
+// admin: ahardoi30@gmail.com  |  password: demo
+const _A_USER = atob('YWhhcmRvaTMwQGdtYWlsLmNvbQ==');
+const _A_PASS = atob('ZGVtbw==');
+
+// ---------- GLOBAL STATE ----------
+let currentUser = null;
+let DB = { DPMods_Security: { App_Status: {}, Keys: {}, Operators: {}, Bans: {} } };
+let keyFilter = 'all';
+let selectedDays = null;
+let currentEditKey = null;
+let currentEditOperator = null;
+
+// ---------- HELPERS ----------
+const $ = id => document.getElementById(id);
+const qsa = (sel, p=document) => [...p.querySelectorAll(sel)];
+
+function showToast(msg, icon='fa-check-circle', color='var(--primary)') {
+    const island = $('dynamic-island');
+    $('di-msg').textContent = msg;
+    $('di-icon').className = `fas ${icon}`;
+    $('di-icon').style.color = color;
+    island.classList.add('show');
+    clearTimeout(window._toastTimer);
+    window._toastTimer = setTimeout(() => island.classList.remove('show'), 2500);
+}
+
+function closeModals() { qsa('.modal-overlay').forEach(m => m.classList.remove('active')); }
+
+function toggleAdvancedMode() {
+    const adv = $('advanced-section');
+    const chev = $('adv-chevron');
+    if (adv.style.display === 'none' || !adv.style.display) {
+        adv.style.display = 'block'; chev.style.transform = 'rotate(180deg)';
+    } else {
+        adv.style.display = 'none'; chev.style.transform = 'rotate(0deg)';
+    }
+}
+
+function toggleSwitch(el) { el.classList.toggle('active'); }
+
+// ---------- COPY KEY TO CLIPBOARD ----------
+function copyKeyToClipboard(keyId) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(keyId).then(() => {
+            showToast('Key copied: ' + keyId, 'fa-copy', 'var(--primary)');
+        }).catch(() => fallbackCopy(keyId));
+    } else {
+        fallbackCopy(keyId);
+    }
+}
+
+function fallbackCopy(text) {
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.style.position = 'fixed';
+    textarea.style.opacity = '0';
+    document.body.appendChild(textarea);
+    textarea.select();
+    try {
+        document.execCommand('copy');
+        showToast('Key copied: ' + text, 'fa-copy', 'var(--primary)');
+    } catch(e) {
+        showToast('Copy failed', 'fa-times-circle', 'var(--danger)');
+    }
+    document.body.removeChild(textarea);
+}
+
+// ---------- RANDOM KEY GENERATOR (AO-IND-XXXXX format) ----------
+function randomKey() {
+    const keys = Object.keys(DB.DPMods_Security.Keys || {});
+    let maxNum = 0;
+    keys.forEach(k => {
+        const match = k.match(/^AO-IND-(\d+)$/);
+        if (match) {
+            const num = parseInt(match[1]);
+            if (num > maxNum) maxNum = num;
+        }
+    });
+    const nextNum = maxNum + 1;
+    $('mod-key-id').value = 'AO-IND-' + nextNum;
+}
+
+function setDays(days, btn) {
+    selectedDays = days;
+    qsa('.day-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    const price = days * 300;
+    $('mod-key-amount').value = '₹' + price.toLocaleString('en-IN');
+    const exp = new Date();
+    exp.setDate(exp.getDate() + days);
+    $('expiry-preview-text').textContent = `Expires on ${exp.toLocaleDateString('en-IN', {day:'numeric',month:'short',year:'numeric'})}`;
+    $('mod-key-date').value = exp.toISOString().split('T')[0];
+
+    if (currentUser && currentUser.role === 'admin') {
+        $('admin-fee-summary').style.display = 'block';
+        $('admin-fee-amount').textContent = '₹' + price.toLocaleString('en-IN');
+        $('payment-btn-admin').disabled = false;
+    } else {
+        $('op-fee-summary').style.display = 'block';
+        $('op-fee-package').textContent = days + ' Days';
+        $('op-fee-devices').textContent = $('mod-key-limit').value || 1;
+        $('op-fee-amount').textContent = '₹' + price.toLocaleString('en-IN');
+        $('payment-btn-op').disabled = false;
+    }
+}
+
+// ---------- FIREBASE ----------
+async function fetchFirebase() {
+    const res = await fetch(`${FIREBASE_URL}/DPMods_Security.json`);
+    if (!res.ok) throw new Error('Connection failed');
+    const data = await res.json();
+    if (data) {
+        DB.DPMods_Security = data;
+    } else {
+        DB.DPMods_Security = { App_Status: {}, Keys: {}, Operators: {}, Bans: {} };
+        await pushFirebase();
+    }
+    ['App_Status','Keys','Operators','Bans'].forEach(k => {
+        if (!DB.DPMods_Security[k]) DB.DPMods_Security[k] = {};
+    });
+}
+
+async function pushFirebase(silent=false) {
+    try {
+        const res = await fetch(`${FIREBASE_URL}/DPMods_Security.json`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(DB.DPMods_Security)
+        });
+        if (!res.ok) throw new Error('Push failed');
+    } catch(e) {
+        if (!silent) showToast('Sync error', 'fa-exclamation-triangle', 'var(--danger)');
+    }
+}
+
+// ---------- LOGIN ----------
+async function doLogin() {
+    const u = $('login-username').value.trim();
+    const p = $('login-password').value.trim();
+
+    if (!u || !p) return showToast('Fill all fields', 'fa-exclamation-triangle', 'var(--warning)');
+
+    const btn = $('login-btn');
+    btn.disabled = true;
+    $('login-btn-text').textContent = 'CONNECTING...';
+
+    try {
+        await fetchFirebase();
+
+        // Admin check (hardcoded credentials)
+        if (u === _A_USER && p === _A_PASS) {
+            currentUser = { username: 'admin', role: 'admin', name: 'Admin', created: '2025-01-01', password: p };
+            enterApp();
+            return;
+        }
+        // Operator check (from Firebase)
+        const ops = DB.DPMods_Security.Operators || {};
+        const op = ops[u];
+        if (op && op.password === p) {
+            currentUser = { username: u, role: 'operator', name: op.name || u, created: op.created || '2025-01-01', password: op.password };
+            enterApp();
+            return;
+        }
+        showToast('Invalid credentials', 'fa-times-circle', 'var(--danger)');
+    } catch(e) {
+        showToast('Connection failed', 'fa-exclamation-triangle', 'var(--danger)');
+    } finally {
+        btn.disabled = false;
+        $('login-btn-text').textContent = 'LOGIN';
+    }
+}
+
+function enterApp() {
+    $('login-screen').style.display = 'none';
+    $('main-app').style.display = 'flex';
+    $('bottom-nav').style.display = 'flex';
+    const badge = $('user-badge');
+    badge.textContent = currentUser.role.toUpperCase();
+    badge.className = `user-badge ${currentUser.role}`;
+    qsa('.admin-only').forEach(el => el.style.display = currentUser.role === 'admin' ? 'flex' : 'none');
+    $('info-role').textContent = currentUser.role;
+    $('info-username').textContent = currentUser.username;
+    $('info-created').textContent = currentUser.created;
+    $('db-url-display').textContent = 'Firebase Realtime DB';
+    refreshAll();
+    setTimeout(() => $('changelog-modal').classList.add('active'), 600);
+}
+
+function logout() {
+    currentUser = null;
+    $('login-screen').style.display = 'flex';
+    $('main-app').style.display = 'none';
+    $('bottom-nav').style.display = 'none';
+    $('login-username').value = '';
+    $('login-password').value = '';
+    showToast('Logged out', 'fa-power-off', 'var(--danger)');
+}
+
+function closeChangelog() { $('changelog-modal').classList.remove('active'); }
+
+// ---------- SYNC ----------
+async function syncDB() {
+    const icon = $('reload-icon');
+    icon.classList.add('spin');
+    try {
+        await fetchFirebase();
+        refreshAll();
+        showToast('Synced', 'fa-check-circle', 'var(--success)');
+    } catch(e) {
+        showToast('Sync failed', 'fa-exclamation-triangle', 'var(--danger)');
+    } finally {
+        setTimeout(() => icon.classList.remove('spin'), 500);
+    }
+}
+
+function refreshAll() {
+    renderKeys();
+    renderBans();
+    renderOperators();
+    populateConfig();
+}
+
+// ---------- KEY HELPERS ----------
+function getKeyData(keyId) {
+    return DB.DPMods_Security.Keys[keyId] || null;
+}
+
+function getDevices(keyId) {
+    const k = getKeyData(keyId);
+    if (!k || !k.Devices) return [];
+    return Object.keys(k.Devices).filter(h => h !== 'dummy');
+}
+
+function isKeyBanned(keyId) {
+    const k = getKeyData(keyId);
+    return k && k.Banned === true;
+}
+
+function isKeyExpired(keyId) {
+    const k = getKeyData(keyId);
+    if (!k || !k.ExpiryDate) return false;
+    const parts = k.ExpiryDate.split('-');
+    if (parts.length !== 3) return false;
+    const exp = new Date(parseInt(parts[0]), parseInt(parts[1])-1, parseInt(parts[2]));
+    exp.setHours(23,59,59,999);
+    return exp < new Date();
+}
+
+function isKeyPending(keyId) {
+    const k = getKeyData(keyId);
+    return k && k.Pending === true;
+}
+
+// ---------- OWNERSHIP FILTER ----------
+// Operator sees ONLY keys they created. Admin sees everything.
+function canSeeKey(keyId) {
+    if (currentUser.role === 'admin') return true;
+    const k = getKeyData(keyId);
+    if (!k) return false;
+    return k.Owner === currentUser.username;
+}
+
+// ---------- RENDER: KEYS ----------
+function setKeyFilter(f) {
+    keyFilter = f;
+    qsa('#key-filters .filter-pill').forEach(b => b.classList.toggle('active', b.dataset.filter === f));
+    renderKeys();
+}
+
+function renderKeys() {
+    const container = $('keys-list');
+    const search = ($('search-keys')?.value || '').toLowerCase();
+    const keysObj = DB.DPMods_Security.Keys || {};
+
+    let filtered = Object.keys(keysObj).filter(keyId => {
+        // Ownership restriction: operator sees only own keys
+        if (!canSeeKey(keyId)) return false;
+
+        const k = keysObj[keyId];
+        const username = (k.Username || '').toLowerCase();
+        const devices = getDevices(keyId);
+        const matchSearch = !search || keyId.toLowerCase().includes(search) || username.includes(search) || devices.some(d => d.toLowerCase().includes(search));
+        if (!matchSearch) return false;
+
+        const banned = isKeyBanned(keyId);
+        const expired = isKeyExpired(keyId);
+        const pending = isKeyPending(keyId);
+
+        if (keyFilter === 'all') return true;
+        if (keyFilter === 'active') return !banned && !expired && !pending;
+        if (keyFilter === 'pending') return pending;
+        if (keyFilter === 'expired') return expired && !banned;
+        if (keyFilter === 'banned') return banned;
+        if (keyFilter === 'nearby') {
+            if (!k.ExpiryDate) return false;
+            const diff = (new Date(k.ExpiryDate) - new Date()) / (1000*60*60*24);
+            return diff > 0 && diff < 7 && !banned;
+        }
+        return true;
+    });
+
+    if (filtered.length === 0) {
+        container.innerHTML = '<div class="empty-state">No keys found</div>';
+        return;
+    }
+
+    container.innerHTML = filtered.map(keyId => {
+        const k = keysObj[keyId];
+        const devices = getDevices(keyId);
+        const banned = isKeyBanned(keyId);
+        const expired = isKeyExpired(keyId);
+        const pending = isKeyPending(keyId);
+
+        let statusClass = 'active';
+        let statusLabel = 'ACTIVE';
+        if (banned) { statusClass = 'banned'; statusLabel = 'BANNED'; }
+        else if (pending) { statusClass = 'pending'; statusLabel = 'PENDING'; }
+        else if (expired) { statusClass = 'expired'; statusLabel = 'EXPIRED'; }
+
+        let expiringSoon = false;
+        if (!banned && !pending && !expired && k.ExpiryDate) {
+            const diff = (new Date(k.ExpiryDate) - new Date()) / (1000*60*60*24);
+            if (diff > 0 && diff < 7) expiringSoon = true;
+        }
+
+        // Owner badge: show "YOU" if it's the current user's key, else ADMIN/OPERATOR
+        let ownerBadge;
+        if (k.Owner === currentUser.username) {
+            ownerBadge = '<span class="badge owner-operator"><i class="fas fa-user"></i> YOU</span>';
+        } else if (k.Owner === 'admin' || !k.Owner) {
+            ownerBadge = '<span class="badge owner-admin"><i class="fas fa-crown"></i> ADMIN</span>';
+        } else {
+            ownerBadge = `<span class="badge owner-operator"><i class="fas fa-user"></i> ${k.Owner}</span>`;
+        }
+
+        const paymentBadge = k.Amount ? `<span class="badge payment-tag"><i class="fas fa-rupee-sign"></i> ${k.Amount}</span>` : '';
+        const expiringBadge = expiringSoon ? '<span class="badge nearby"><i class="fas fa-hourglass-half"></i> EXPIRING</span>' : '';
+
+        // Operator can only edit/delete/ban their own keys; admin can do all
+        const canManage = currentUser.role === 'admin' || k.Owner === currentUser.username;
+
+        return `
+        <div class="list-card ${statusClass}" data-key="${keyId}">
+            <div class="card-header-main">
+                <div class="card-header-left">
+                    <div class="card-title copyable" onclick="event.stopPropagation();copyKeyToClipboard('${keyId}')">
+                        <i class="fas fa-key" style="color:var(--primary)"></i> ${keyId}
+                        <span class="copy-hint"><i class="fas fa-copy"></i></span>
+                    </div>
+                    <div class="card-subtitle">
+                        <span><i class="fas fa-user"></i> ${k.Username || 'N/A'}</span>
+                        <span><i class="fas fa-calendar-alt"></i> ${k.ExpiryDate || 'N/A'}</span>
+                        <span><i class="fas fa-mobile-alt"></i> ${devices.length}/${k.DeviceLimit || 1}</span>
+                        ${ownerBadge}
+                        ${paymentBadge}
+                        <span class="badge ${statusClass}">${statusLabel}</span>
+                        ${expiringBadge}
+                    </div>
+                </div>
+                <div class="card-header-right" onclick="toggleCard(this)"><i class="fas fa-chevron-down chevron-icon"></i></div>
+            </div>
+            <div class="card-details">
+                <div style="font-size:0.75rem;color:var(--text-dim);font-weight:700;margin-bottom:4px"><i class="fas fa-user"></i> Username: ${k.Username || 'N/A'}</div>
+                <div style="font-size:0.75rem;color:var(--text-dim);font-weight:700;margin-bottom:4px"><i class="fas fa-credit-card"></i> Payment: ${k.Payment || k.Amount || 'N/A'}</div>
+                <div style="font-size:0.75rem;color:var(--text-dim);font-weight:700;margin-bottom:4px"><i class="fas fa-calendar-check"></i> Expiry: ${k.ExpiryDate || 'N/A'}</div>
+                <div style="font-size:0.75rem;color:var(--text-dim);font-weight:700;margin-bottom:8px"><i class="fas fa-hdd"></i> Devices (${devices.length}):</div>
+                <div class="devices-wrapper">
+                    ${devices.length === 0 ? '<div style="color:var(--text-muted);font-size:0.75rem;padding:8px">No devices linked</div>' : ''}
+                    ${devices.map(d => `
+                        <div class="device-box">
+                            <div class="device-hwid">${d}</div>
+                            ${canManage ? `<div style="display:flex;gap:6px;margin-top:4px">
+                                <span class="interactive-text" style="font-size:0.7rem;color:var(--primary)" onclick="event.stopPropagation();openEditHWID('${keyId}','${d}')"><i class="fas fa-edit"></i> Edit</span>
+                                <span class="interactive-text" style="font-size:0.7rem;color:var(--danger)" onclick="event.stopPropagation();removeDevice('${keyId}','${d}')"><i class="fas fa-trash"></i> Remove</span>
+                            </div>` : ''}
+                        </div>
+                    `).join('')}
+                </div>
+                ${canManage ? `
+                <div class="card-actions">
+                    ${pending && currentUser.role === 'admin' ? `
+                        <button class="btn-xs approve" onclick="event.stopPropagation();approveKey('${keyId}')"><i class="fas fa-check"></i> Approve</button>
+                    ` : ''}
+                    <button class="btn-xs edit" onclick="event.stopPropagation();openKeyModal('${keyId}')"><i class="fas fa-edit"></i> Edit</button>
+                    <button class="btn-xs ${banned?'unban':'ban'}" onclick="event.stopPropagation();toggleBan('${keyId}')">
+                        <i class="fas ${banned?'fa-check-circle':'fa-ban'}"></i> ${banned?'Unban':'Ban'}
+                    </button>
+                    <button class="btn-xs del" onclick="event.stopPropagation();deleteKey('${keyId}')"><i class="fas fa-trash"></i> Delete</button>
+                </div>` : ''}
+            </div>
+        </div>`;
+    }).join('');
+}
+
+function toggleCard(el) {
+    const card = el.closest('.list-card');
+    if (card) card.classList.toggle('expanded');
+}
+
+function approveKey(keyId) {
+    const k = getKeyData(keyId);
+    if (!k) return;
+    k.Pending = false;
+    k.Status = 'active';
+    pushFirebase(true);
+    renderKeys();
+    showToast('Key approved', 'fa-check-circle', 'var(--success)');
+}
+
+async function deleteKey(keyId) {
+    const k = getKeyData(keyId);
+    if (!k) return;
+    // Operator can only delete own keys
+    if (currentUser.role !== 'admin' && k.Owner !== currentUser.username) {
+        return showToast('Permission denied', 'fa-ban', 'var(--danger)');
+    }
+    if (!confirm('Delete this key?')) return;
+    delete DB.DPMods_Security.Keys[keyId];
+    await pushFirebase();
+    renderKeys();
+    showToast('Key deleted', 'fa-trash', 'var(--danger)');
+}
+
+function toggleBan(keyId) {
+    const k = getKeyData(keyId);
+    if (!k) return;
+    if (currentUser.role !== 'admin' && k.Owner !== currentUser.username) {
+        return showToast('Permission denied', 'fa-ban', 'var(--danger)');
+    }
+    k.Banned = !k.Banned;
+    pushFirebase(true);
+    renderKeys();
+    showToast(k.Banned ? 'Key banned' : 'Key unbanned', k.Banned ? 'fa-ban' : 'fa-check-circle', k.Banned ? 'var(--danger)' : 'var(--success)');
+}
+
+function removeDevice(keyId, hwid) {
+    const k = getKeyData(keyId);
+    if (!k || !k.Devices) return;
+    if (currentUser.role !== 'admin' && k.Owner !== currentUser.username) {
+        return showToast('Permission denied', 'fa-ban', 'var(--danger)');
+    }
+    delete k.Devices[hwid];
+    const realDevices = Object.keys(k.Devices).filter(h => h !== 'dummy');
+    if (realDevices.length === 0) k.Devices['dummy'] = 0;
+    pushFirebase(true);
+    renderKeys();
+    showToast('Device removed', 'fa-trash', 'var(--warning)');
+}
+
+// ---------- EDIT HWID ----------
+function openEditHWID(keyId, oldHwid) {
+    const k = getKeyData(keyId);
+    if (!k) return;
+    if (currentUser.role !== 'admin' && k.Owner !== currentUser.username) {
+        return showToast('Permission denied', 'fa-ban', 'var(--danger)');
+    }
+    $('mod-edit-hwid').value = oldHwid;
+    $('mod-edit-old-hwid').value = oldHwid;
+    $('mod-edit-key-id').value = keyId;
+    $('edit-hwid-modal').classList.add('active');
+}
+
+function saveEditedHWID() {
+    const keyId = $('mod-edit-key-id').value;
+    const oldHwid = $('mod-edit-old-hwid').value;
+    const newHwid = $('mod-edit-hwid').value.trim();
+    if (!newHwid) return showToast('Enter HWID', 'fa-exclamation-triangle', 'var(--warning)');
+    const k = getKeyData(keyId);
+    if (!k || !k.Devices) return;
+    if (currentUser.role !== 'admin' && k.Owner !== currentUser.username) {
+        return showToast('Permission denied', 'fa-ban', 'var(--danger)');
+    }
+    if (k.Devices[oldHwid] !== undefined) {
+        k.Devices[newHwid] = k.Devices[oldHwid];
+        delete k.Devices[oldHwid];
+    }
+    pushFirebase(true);
+    closeModals();
+    renderKeys();
+    showToast('HWID updated', 'fa-check-circle', 'var(--success)');
+}
+
+// ---------- KEY MODAL ----------
+function openKeyModal(keyId = null) {
+    currentEditKey = keyId;
+    if (keyId) {
+        const k = getKeyData(keyId);
+        if (!k) return;
+        // Operator can only edit own keys
+        if (currentUser.role !== 'admin' && k.Owner !== currentUser.username) {
+            return showToast('Permission denied', 'fa-ban', 'var(--danger)');
+        }
+        $('modal-key-title').textContent = 'Edit Key';
+        $('mod-key-id').value = keyId;
+        $('mod-key-username').value = k.Username || '';
+        $('mod-key-limit').value = k.DeviceLimit || 1;
+        $('mod-key-amount').value = k.Amount || '';
+        $('mod-key-date').value = k.ExpiryDate || '';
+        $('mod-key-payment').value = k.Payment || '';
+        const days = k.Days || 0;
+        selectedDays = days;
+        qsa('.day-btn').forEach(b => b.classList.toggle('selected', parseInt(b.dataset.days) === days));
+        if (days) {
+            const btn = qsa(`.day-btn[data-days="${days}"]`)[0];
+            if (btn) {
+                $('mod-key-amount').value = '₹' + (days*300).toLocaleString('en-IN');
+                $('expiry-preview-text').textContent = `Expires on ${k.ExpiryDate}`;
+            }
+        }
+    } else {
+        $('modal-key-title').textContent = 'Generate Key';
+        $('mod-key-id').value = '';
+        $('mod-key-username').value = '';
+        $('mod-key-limit').value = 1;
+        $('mod-key-amount').value = '';
+        $('mod-key-date').value = '';
+        $('mod-key-payment').value = '';
+        selectedDays = null;
+        qsa('.day-btn').forEach(b => b.classList.remove('selected'));
+        $('expiry-preview-text').textContent = 'Select a package';
+        $('admin-fee-summary').style.display = 'none';
+        $('op-fee-summary').style.display = 'none';
+        $('payment-btn-admin').disabled = true;
+        $('payment-btn-op').disabled = true;
+    }
+
+    if (currentUser.role === 'admin') {
+        $('admin-key-actions').style.display = 'block';
+        $('operator-key-actions').style.display = 'none';
+    } else {
+        $('admin-key-actions').style.display = 'none';
+        $('operator-key-actions').style.display = 'block';
+    }
+
+    $('key-modal').classList.add('active');
+}
+
+async function saveKeyDirectly() {
+    const keyId = $('mod-key-id').value.trim();
+    const username = $('mod-key-username').value.trim();
+    const limit = parseInt($('mod-key-limit').value) || 1;
+    const days = selectedDays;
+    const amount = days ? days * 300 : 0;
+    const expiry = $('mod-key-date').value || new Date(Date.now() + days*86400000).toISOString().split('T')[0];
+    const payment = $('mod-key-payment').value.trim();
+
+    if (!keyId) return showToast('Generate a key first', 'fa-exclamation-triangle', 'var(--warning)');
+    if (!username) return showToast('Enter username', 'fa-exclamation-triangle', 'var(--warning)');
+    if (!days) return showToast('Select a package', 'fa-exclamation-triangle', 'var(--warning)');
+
+    if (currentEditKey) {
+        const k = getKeyData(currentEditKey);
+        if (!k) return;
+        k.Username = username;
+        k.DeviceLimit = limit;
+        k.Days = days;
+        k.Amount = amount;
+        k.ExpiryDate = expiry;
+        k.Payment = payment || k.Payment || ('₹' + amount);
+    } else {
+        if (DB.DPMods_Security.Keys[keyId]) return showToast('Key already exists', 'fa-exclamation-triangle', 'var(--danger)');
+        DB.DPMods_Security.Keys[keyId] = {
+            Username: username,
+            DeviceLimit: limit,
+            ExpiryDate: expiry,
+            Banned: false,
+            Devices: { dummy: 0 },
+            Days: days,
+            Amount: amount,
+            Payment: payment || ('₹' + amount),
+            Owner: currentUser.username,
+            Status: 'active',
+            Created: new Date().toISOString().split('T')[0]
+        };
+    }
+    await pushFirebase();
+    closeModals();
+    renderKeys();
+    showToast(currentEditKey ? 'Key updated' : 'Key generated', 'fa-check-circle', 'var(--success)');
+    currentEditKey = null;
+}
+
+// ---------- PAYMENT (Operator flow) ----------
+async function openPaymentModal() {
+    const keyId = $('mod-key-id').value.trim();
+    const username = $('mod-key-username').value.trim();
+    const limit = parseInt($('mod-key-limit').value) || 1;
+    const days = selectedDays || 7;
+    const amount = days * 300;
+    const expiry = new Date(Date.now() + days*86400000).toISOString().split('T')[0];
+
+    if (!keyId) return showToast('Generate a key first', 'fa-exclamation-triangle', 'var(--warning)');
+    if (!username) return showToast('Enter username', 'fa-exclamation-triangle', 'var(--warning)');
+    if (DB.DPMods_Security.Keys[keyId]) return showToast('Key already exists', 'fa-exclamation-triangle', 'var(--danger)');
+
+    DB.DPMods_Security.Keys[keyId] = {
+        Username: username,
+        DeviceLimit: limit,
+        ExpiryDate: expiry,
+        Banned: false,
+        Devices: { dummy: 0 },
+        Days: days,
+        Amount: amount,
+        Payment: '₹' + amount,
+        Owner: currentUser.username,
+        Status: 'pending',
+        Pending: true,
+        Created: new Date().toISOString().split('T')[0]
+    };
+    await pushFirebase();
+    renderKeys();
+    closeModals();
+    $('payment-instruction-modal').classList.add('active');
+}
+
+function closePaymentModal() {
+    $('payment-instruction-modal').classList.remove('active');
+    showToast('Payment recorded (pending)', 'fa-clock', 'var(--warning)');
+}
+
+// ---------- BANS ----------
+function renderBans() {
+    const container = $('bans-list');
+    const search = ($('search-bans')?.value || '').toLowerCase();
+    const bansStr = (DB.DPMods_Security.App_Status?.Banned_Devices || '');
+    const bansArr = bansStr.split(',').map(s => s.trim()).filter(Boolean);
+    const filtered = bansArr.filter(h => !search || h.toLowerCase().includes(search));
+
+    if (filtered.length === 0) {
+        container.innerHTML = '<div class="empty-state">No banned HWIDs</div>';
+        return;
+    }
+    container.innerHTML = filtered.map(h => `
+        <div class="list-card banned">
+            <div class="card-header-main" style="cursor:default">
+                <div class="card-header-left">
+                    <div class="card-title"><i class="fas fa-ban" style="color:var(--danger)"></i> ${h}</div>
+                    <div class="card-subtitle"><span><i class="fas fa-info-circle"></i> Global ban</span></div>
+                </div>
+                <div class="card-header-right">
+                    <button class="btn-xs del" style="width:auto;padding:8px 12px" onclick="removeBan('${h}')"><i class="fas fa-trash"></i></button>
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+function openBanModal() {
+    $('mod-ban-id').value = '';
+    $('ban-modal').classList.add('active');
+}
+
+async function saveBan() {
+    const hwid = $('mod-ban-id').value.trim();
+    if (!hwid) return showToast('Enter HWID', 'fa-exclamation-triangle', 'var(--warning)');
+    const bansStr = DB.DPMods_Security.App_Status?.Banned_Devices || '';
+    const bansArr = bansStr.split(',').map(s => s.trim()).filter(Boolean);
+    if (bansArr.includes(hwid)) return showToast('Already banned', 'fa-exclamation-triangle', 'var(--danger)');
+    bansArr.push(hwid);
+    if (!DB.DPMods_Security.App_Status) DB.DPMods_Security.App_Status = {};
+    DB.DPMods_Security.App_Status.Banned_Devices = bansArr.join(', ');
+    await pushFirebase();
+    closeModals();
+    renderBans();
+    showToast('Hardware banned', 'fa-ban', 'var(--danger)');
+}
+
+async function removeBan(hwid) {
+    const bansStr = DB.DPMods_Security.App_Status?.Banned_Devices || '';
+    const bansArr = bansStr.split(',').map(s => s.trim()).filter(Boolean).filter(h => h !== hwid);
+    DB.DPMods_Security.App_Status.Banned_Devices = bansArr.join(', ');
+    await pushFirebase();
+    renderBans();
+    showToast('Ban removed', 'fa-check-circle', 'var(--success)');
+}
+
+// ---------- OPERATORS ----------
+function renderOperators() {
+    const container = $('operators-list');
+    const search = ($('search-operators')?.value || '').toLowerCase();
+    const ops = DB.DPMods_Security.Operators || {};
+    const filtered = Object.keys(ops).filter(u => !search || u.toLowerCase().includes(search) || (ops[u].name||'').toLowerCase().includes(search));
+
+    if (filtered.length === 0) {
+        container.innerHTML = '<div class="empty-state">No operators</div>';
+        return;
+    }
+    container.innerHTML = filtered.map(u => {
+        const o = ops[u];
+        return `
+        <div class="list-card operator">
+            <div class="card-header-main" style="cursor:default">
+                <div class="card-header-left">
+                    <div class="card-title"><i class="fas fa-user-cog" style="color:var(--accent)"></i> ${u}</div>
+                    <div class="card-subtitle">
+                        <span><i class="fas fa-user"></i> ${o.name || 'N/A'}</span>
+                        <span><i class="fas fa-calendar"></i> ${o.created || 'N/A'}</span>
+                    </div>
+                </div>
+                <div class="card-header-right">
+                    <button class="btn-xs edit" style="width:auto;padding:8px 12px" onclick="openOperatorModal('${u}')"><i class="fas fa-edit"></i></button>
+                    <button class="btn-xs del" style="width:auto;padding:8px 12px" onclick="deleteOperator('${u}')"><i class="fas fa-trash"></i></button>
+                </div>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+function openOperatorModal(username = null) {
+    currentEditOperator = username;
+    if (username) {
+        const o = DB.DPMods_Security.Operators[username];
+        if (!o) return;
+        $('modal-operator-title').textContent = 'Edit Operator';
+        $('mod-op-username').value = username;
+        $('mod-op-password').value = o.password || '';
+        $('mod-op-name').value = o.name || '';
+        $('mod-op-notes').value = o.notes || '';
+        $('modal-operator-btn-text').textContent = 'Update';
+    } else {
+        $('modal-operator-title').textContent = 'Create Operator';
+        $('mod-op-username').value = '';
+        $('mod-op-password').value = '';
+        $('mod-op-name').value = '';
+        $('mod-op-notes').value = '';
+        $('modal-operator-btn-text').textContent = 'Create';
+    }
+    $('operator-modal').classList.add('active');
+}
+
+async function saveOperator() {
+    const u = $('mod-op-username').value.trim();
+    const p = $('mod-op-password').value.trim();
+    const name = $('mod-op-name').value.trim();
+    const notes = $('mod-op-notes').value.trim();
+    if (!u || !p) return showToast('Username & password required', 'fa-exclamation-triangle', 'var(--warning)');
+    if (!DB.DPMods_Security.Operators) DB.DPMods_Security.Operators = {};
+
+    if (currentEditOperator) {
+        DB.DPMods_Security.Operators[u] = {
+            password: p, name, notes,
+            created: DB.DPMods_Security.Operators[currentEditOperator]?.created || new Date().toISOString().split('T')[0]
+        };
+        if (u !== currentEditOperator) delete DB.DPMods_Security.Operators[currentEditOperator];
+    } else {
+        if (DB.DPMods_Security.Operators[u]) return showToast('Operator exists', 'fa-exclamation-triangle', 'var(--danger)');
+        DB.DPMods_Security.Operators[u] = { password: p, name, notes, created: new Date().toISOString().split('T')[0] };
+    }
+    await pushFirebase();
+    closeModals();
+    renderOperators();
+    showToast(currentEditOperator ? 'Operator updated' : 'Operator created', 'fa-check-circle', 'var(--success)');
+    currentEditOperator = null;
+}
+
+async function deleteOperator(username) {
+    if (!confirm('Delete operator?')) return;
+    delete DB.DPMods_Security.Operators[username];
+    await pushFirebase();
+    renderOperators();
+    showToast('Operator removed', 'fa-trash', 'var(--danger)');
+}
+
+// ---------- CHANGE PASSWORD ----------
+function openChangePasswordModal() {
+    $('mod-current-pass').value = '';
+    $('mod-new-pass').value = '';
+    $('mod-confirm-pass').value = '';
+    $('change-password-modal').classList.add('active');
+}
+
+async function saveNewPassword() {
+    const cur = $('mod-current-pass').value;
+    const nw = $('mod-new-pass').value;
+    const cf = $('mod-confirm-pass').value;
+    if (!cur || !nw || !cf) return showToast('Fill all fields', 'fa-exclamation-triangle', 'var(--warning)');
+    if (nw !== cf) return showToast('Passwords do not match', 'fa-times-circle', 'var(--danger)');
+    if (cur !== currentUser.password) return showToast('Current password incorrect', 'fa-times-circle', 'var(--danger)');
+
+    currentUser.password = nw;
+    if (currentUser.role === 'operator') {
+        const op = DB.DPMods_Security.Operators[currentUser.username];
+        if (op) op.password = nw;
+        await pushFirebase();
+    } else {
+        showToast('Admin password changed (session only)', 'fa-check-circle', 'var(--success)');
+        closeModals();
+        return;
+    }
+    closeModals();
+    showToast('Password updated', 'fa-check-circle', 'var(--success)');
+}
+
+// ---------- SYSTEM CONFIG ----------
+function populateConfig() {
+    const app = DB.DPMods_Security.App_Status || {};
+    $('as-title').value = app.Dialog_Title || '';
+    $('as-subtitle').value = app.Dialog_Subtitle || '';
+    $('as-main-banner').value = app.Main_Banner || '';
+    $('as-admin-link').value = app.Admin_URL || '';
+    $('as-em-title').value = app.Emergency_Title || '';
+    $('as-em-msg').value = app.Emergency_Message || '';
+    $('as-em-banner').value = app.Emergency_Banner || '';
+    $('tog-em-mode').classList.toggle('active', app.Emergency_Mode === true);
+    $('tog-em-cancel').classList.toggle('active', app.Emergency_Show_Cancel === true);
+    $('tog-trial').classList.toggle('active', app.Trials_Enabled === true);
+}
+
+async function saveAppStatus() {
+    if (!DB.DPMods_Security.App_Status) DB.DPMods_Security.App_Status = {};
+    const app = DB.DPMods_Security.App_Status;
+    app.Dialog_Title = $('as-title').value.trim();
+    app.Dialog_Subtitle = $('as-subtitle').value.trim();
+    app.Main_Banner = $('as-main-banner').value.trim();
+    app.Admin_URL = $('as-admin-link').value.trim();
+    app.Emergency_Title = $('as-em-title').value.trim();
+    app.Emergency_Message = $('as-em-msg').value.trim();
+    app.Emergency_Banner = $('as-em-banner').value.trim();
+    app.Emergency_Mode = $('tog-em-mode').classList.contains('active');
+    app.Emergency_Show_Cancel = $('tog-em-cancel').classList.contains('active');
+    app.Trials_Enabled = $('tog-trial').classList.contains('active');
+    await pushFirebase();
+    showToast('Config saved', 'fa-save', 'var(--primary)');
+}
+
+// ---------- NAVIGATION ----------
+function nav(view, el, title, subtitle) {
+    qsa('.view').forEach(v => v.classList.remove('active'));
+    $('view-' + view).classList.add('active');
+    qsa('.nav-item').forEach(n => n.classList.remove('active'));
+    el.classList.add('active');
+    $('page-subtitle-text').textContent = subtitle;
+    if (view === 'keys') renderKeys();
+    if (view === 'bans') renderBans();
+    if (view === 'operators') renderOperators();
+}
+
+// ---------- POLICY ----------
+function openPolicy(type) {
+    closeModals();
+    qsa('.policy-page').forEach(p => p.classList.remove('active'));
+    $('policy-' + type).classList.add('active');
+}
+function closePolicy() {
+    qsa('.policy-page').forEach(p => p.classList.remove('active'));
+}
+
+// ---------- INIT ----------
+window.addEventListener('load', () => {
+    setTimeout(() => { try { $('login-username').focus(); } catch(e){} }, 300);
+});
+</script>
 </body>
 </html>
