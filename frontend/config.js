@@ -8,6 +8,6 @@ window.APP_CONFIG = {
     messagingSenderId: "451169564297",
     appId: "1:451169564297:web:d891b4bf9975266d977858"
   },
-  BACKEND_URL: "http://localhost:3000",
+  BACKEND_URL: "https://anurag-online-backend.onrender.com",
   CASHFREE_MODE: "sandbox"
 };
