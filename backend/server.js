@@ -746,7 +746,7 @@ app.post('/api/admin/config-updated', authMiddleware, async (req, res) => {
 // ─── TELEGRAM: SET WEBHOOK ───
 app.get('/api/telegram/set-webhook', async (req, res) => {
   try {
-    const webhookUrl = `${req.protocol}://${req.get('host')}/api/telegram/webhook`;
+    const webhookUrl = `https://${req.get('host')}/api/telegram/webhook`;
     const r = await fetch(`https://api.telegram.org/bot${TG_TOKEN}/setWebhook?url=${webhookUrl}`);
     const data = await r.json();
     res.json({ ok: true, webhookUrl, telegram: data });
