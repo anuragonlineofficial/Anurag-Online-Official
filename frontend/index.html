@@ -12,6 +12,7 @@
 <div class="bg-particles" id="particles"></div>
 <div id="toast"><i id="toast-icon" class="fas fa-check-circle"></i> <span id="toast-msg">Message</span></div>
 
+<!-- ═══ LOGIN SCREEN ═══ -->
 <div id="screen-login" class="screen active">
   <div class="glass-panel login-card">
     <div class="login-header">
@@ -21,16 +22,17 @@
     </div>
     <div class="input-group">
       <label>User ID (Admin or Operator)</label>
-      <div class="input-wrapper"><i class="fas fa-id-badge"></i><input type="text" id="auth-id" class="input-field" placeholder="admin / operator ID"></div>
+      <div class="input-wrapper"><i class="fas fa-id-badge"></i><input type="text" id="auth-id" class="input-field" placeholder="admin / operator ID" autocomplete="off"></div>
     </div>
     <div class="input-group" style="margin-bottom:32px;">
       <label>Password</label>
-      <div class="input-wrapper"><i class="fas fa-lock"></i><input type="password" id="auth-pass" class="input-field" placeholder="••••••••"></div>
+      <div class="input-wrapper"><i class="fas fa-lock"></i><input type="password" id="auth-pass" class="input-field" placeholder="••••••••" autocomplete="off"></div>
     </div>
     <button class="btn btn-primary" id="btn-login" onclick="login()">AUTHENTICATE <i class="fas fa-arrow-right"></i></button>
   </div>
 </div>
 
+<!-- ═══ DASHBOARD ═══ -->
 <div id="screen-dashboard" class="screen">
   <div class="app-layout">
     <aside class="sidebar">
@@ -55,6 +57,8 @@
       </header>
       <div class="content-scroll" id="content-scroll">
         <div class="content-container">
+
+          <!-- KEYS TAB -->
           <div id="tab-keys" class="tab-pane active">
             <div class="page-header"><h2>License Management</h2></div>
             <div class="search-filter-bar">
@@ -69,6 +73,8 @@
             </div>
             <div class="data-grid" id="list-keys"></div>
           </div>
+
+          <!-- USERS TAB -->
           <div id="tab-users" class="tab-pane">
             <div class="page-header"><h2>Operator User Management</h2></div>
             <div class="search-filter-bar">
@@ -77,6 +83,8 @@
             </div>
             <div class="data-grid" id="list-users"></div>
           </div>
+
+          <!-- CONFIG TAB -->
           <div id="tab-config" class="tab-pane">
             <div class="page-header"><h2>System Settings</h2></div>
             <div class="glass-panel form-section">
@@ -94,12 +102,13 @@
                 <div class="input-group"><label>Dialog Subtitle</label><div class="input-wrapper"><i class="fas fa-comment-dots"></i><input type="text" id="cfg-subtitle" class="input-field"></div></div>
                 <div class="input-group"><label>Admin Contact URL</label><div class="input-wrapper"><i class="fas fa-user-shield"></i><input type="text" id="cfg-admin" class="input-field"></div></div>
                 <div class="input-group"><label>Update Link</label><div class="input-wrapper"><i class="fas fa-download"></i><input type="text" id="cfg-updatelink" class="input-field"></div></div>
-                <div class="input-group"><label>Operator Key Price (INR)</label><div class="input-wrapper"><i class="fas fa-rupee-sign"></i><input type="number" id="cfg-price" class="input-field" value="49"></div></div>
+                <div class="input-group"><label>Key Price Per Day (INR)</label><div class="input-wrapper"><i class="fas fa-rupee-sign"></i><input type="number" id="cfg-price" class="input-field" value="200"></div></div>
                 <div class="input-group" style="grid-column:1/-1;"><label>Global Banned HWIDs (Comma Separated)</label><textarea id="cfg-bans" class="input-field"></textarea></div>
               </div>
               <button class="btn btn-primary" style="margin-top:16px;max-width:300px;" onclick="saveConfig()"><i class="fas fa-save"></i> Save System Config</button>
             </div>
           </div>
+
         </div>
       </div>
       <nav class="bottom-nav">
@@ -111,43 +120,117 @@
   </div>
 </div>
 
+<!-- ═══ MODAL: CREATE/EDIT KEY ═══ -->
 <div class="modal-overlay" id="modal-key">
   <div class="modal-content">
-    <div class="modal-header"><h3 id="md-title">Create License Key</h3><button class="modal-close" onclick="closeModal('modal-key')"><i class="fas fa-times"></i></button></div>
+    <div class="modal-header">
+      <h3 id="md-title">Create License Key</h3>
+      <button class="modal-close" onclick="closeModal('modal-key')"><i class="fas fa-times"></i></button>
+    </div>
     <div class="modal-body">
-      <div class="input-group"><label>License Key</label><div class="input-wrapper"><i class="fas fa-key"></i><input type="text" id="md-key" class="input-field" style="font-family:var(--font-mono);color:var(--accent-secondary);font-weight:700;" readonly></div></div>
-      <div class="input-group"><label>Username / Alias</label><div class="input-wrapper"><i class="fas fa-user"></i><input type="text" id="md-user" class="input-field" placeholder="Client Name"></div></div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-        <div class="input-group"><label>Device Limit</label><div class="input-wrapper"><i class="fas fa-mobile-alt"></i><input type="number" id="md-limit" class="input-field" value="1" min="1"></div></div>
-        <div class="input-group"><label>Expiry</label><div class="input-wrapper"><i class="fas fa-calendar-alt"></i><input type="date" id="md-date" class="input-field"></div></div>
+      
+      <div class="input-group">
+        <label>License Key</label>
+        <div class="input-wrapper">
+          <i class="fas fa-key"></i>
+          <input type="text" id="md-key" class="input-field" style="font-family:var(--font-mono);color:var(--accent-secondary);font-weight:700;" readonly>
+        </div>
       </div>
-      <div style="display:flex;gap:6px;margin-top:8px;">
-        <span class="date-chip" onclick="addDays(1)">1D</span>
-        <span class="date-chip" onclick="addDays(7)">7D</span>
-        <span class="date-chip" onclick="addDays(30)">30D</span>
-        <span class="date-chip" onclick="addDays(90)">90D</span>
-        <span class="date-chip" onclick="addDays(365)">1Y</span>
+      
+      <div class="input-group">
+        <label>Username / Alias</label>
+        <div class="input-wrapper">
+          <i class="fas fa-user"></i>
+          <input type="text" id="md-user" class="input-field" placeholder="Client Name">
+        </div>
       </div>
-      <div id="operator-payment-info" style="display:none;margin-top:12px;padding:12px;border-radius:var(--radius-sm);background:rgba(139,92,246,0.08);border:1px solid rgba(139,92,246,0.2);">
-        <p style="font-size:0.8rem;color:var(--text-secondary);"><i class="fas fa-info-circle" style="color:var(--accent-secondary);"></i> Payment via Cashfree. Key only after successful payment.</p>
-        <p style="font-size:0.9rem;color:var(--accent-secondary);font-weight:700;margin-top:8px;">Amount: ₹<span id="payment-amount-display">49</span></p>
+      
+      <div class="input-group">
+        <label>Device Limit</label>
+        <div class="input-wrapper">
+          <i class="fas fa-mobile-alt"></i>
+          <input type="number" id="md-limit" class="input-field" value="1" min="1">
+        </div>
       </div>
+      
+      <div class="input-group">
+        <label>Select Days (Quick)</label>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+          <span class="date-chip" onclick="addDays(7)">7D</span>
+          <span class="date-chip" onclick="addDays(15)">15D</span>
+          <span class="date-chip" onclick="addDays(30)">30D</span>
+          <span class="date-chip" onclick="addDays(60)">60D</span>
+          <span class="date-chip" onclick="addDays(90)">90D</span>
+          <span class="date-chip" onclick="addDays(180)">180D</span>
+          <span class="date-chip" onclick="addDays(365)">365D</span>
+        </div>
+      </div>
+      
+      <div class="input-group">
+        <label>Custom Days (manual entry)</label>
+        <div class="input-wrapper">
+          <i class="fas fa-clock"></i>
+          <input type="number" id="md-custom-days" class="input-field" placeholder="e.g. 45" min="1" oninput="onCustomDaysInput()">
+        </div>
+        <p style="font-size:0.7rem;color:var(--text-secondary);margin-top:4px;">
+          <i class="fas fa-info-circle"></i> Days change karne se expiry date auto-set hogi
+        </p>
+      </div>
+      
+      <div class="input-group">
+        <label>Expiry Date (auto-calculated)</label>
+        <div class="input-wrapper">
+          <i class="fas fa-calendar-alt"></i>
+          <input type="date" id="md-date" class="input-field" onchange="onDateChange()">
+        </div>
+      </div>
+      
+      <div id="operator-payment-info" style="display:none;padding:14px;border-radius:var(--radius-sm);background:linear-gradient(135deg,rgba(139,92,246,0.12),rgba(59,130,246,0.08));border:1px solid rgba(139,92,246,0.3);">
+        <p style="font-size:0.75rem;color:var(--text-secondary);margin-bottom:8px;">
+          <i class="fas fa-calculator" style="color:var(--accent-secondary);"></i> <strong>Auto Price Calculation:</strong>
+        </p>
+        <p style="font-size:0.7rem;color:var(--text-secondary);margin-bottom:8px;font-family:var(--font-mono);">
+          ₹<span id="price-per-day-display">200</span> × <span id="days-display">7</span> days
+        </p>
+        <p style="font-size:1.2rem;color:var(--accent-secondary);font-weight:800;margin:0;">
+          Total: ₹<span id="payment-amount-display">1400</span>
+        </p>
+      </div>
+      
     </div>
     <div class="modal-footer">
       <button class="btn btn-secondary" style="width:auto;" onclick="closeModal('modal-key')">CANCEL</button>
-      <button class="btn btn-primary" style="width:auto;" id="btn-save-key" onclick="handleSaveKeyClick()"><i class="fas fa-check"></i> SAVE KEY</button>
+      <button class="btn btn-primary" style="width:auto;" id="btn-save-key" onclick="handleSaveKeyClick()">
+        <i class="fas fa-check"></i> SAVE KEY
+      </button>
     </div>
   </div>
 </div>
 
+<!-- ═══ MODAL: CREATE OPERATOR ═══ -->
 <div class="modal-overlay" id="modal-user">
   <div class="modal-content">
-    <div class="modal-header"><h3 id="mu-title">Create Operator User</h3><button class="modal-close" onclick="closeModal('modal-user')"><i class="fas fa-times"></i></button></div>
+    <div class="modal-header">
+      <h3 id="mu-title">Create Operator User</h3>
+      <button class="modal-close" onclick="closeModal('modal-user')"><i class="fas fa-times"></i></button>
+    </div>
     <div class="modal-body">
-      <div class="input-group"><label>Operator ID</label><div class="input-wrapper"><i class="fas fa-id-badge"></i><input type="text" id="mu-id" class="input-field" placeholder="e.g. operator1"></div></div>
-      <div class="input-group"><label>Display Name</label><div class="input-wrapper"><i class="fas fa-user"></i><input type="text" id="mu-name" class="input-field" placeholder="Full Name"></div></div>
-      <div class="input-group"><label>Password</label><div class="input-wrapper"><i class="fas fa-lock"></i><input type="text" id="mu-pass" class="input-field" placeholder="Set password"></div></div>
-      <div class="input-group"><label>Contact (Optional)</label><div class="input-wrapper"><i class="fas fa-phone"></i><input type="text" id="mu-contact" class="input-field" placeholder="Phone / Telegram"></div></div>
+      <div class="input-group">
+        <label>Operator ID</label>
+        <div class="input-wrapper"><i class="fas fa-id-badge"></i><input type="text" id="mu-id" class="input-field" placeholder="e.g. operator1"></div>
+      </div>
+      <div class="input-group">
+        <label>Display Name</label>
+        <div class="input-wrapper"><i class="fas fa-user"></i><input type="text" id="mu-name" class="input-field" placeholder="Full Name"></div>
+      </div>
+      <div class="input-group">
+        <label>Password</label>
+        <div class="input-wrapper"><i class="fas fa-lock"></i><input type="text" id="mu-pass" class="input-field" placeholder="Set password"></div>
+      </div>
+      <div class="input-group">
+        <label>Contact (Optional)</label>
+        <div class="input-wrapper"><i class="fas fa-phone"></i><input type="text" id="mu-contact" class="input-field" placeholder="Phone / Telegram"></div>
+      </div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-secondary" style="width:auto;" onclick="closeModal('modal-user')">CANCEL</button>
@@ -156,20 +239,23 @@
   </div>
 </div>
 
+<!-- ═══ PAYMENT SCREEN ═══ -->
 <div class="payment-screen" id="payment-screen">
   <div class="payment-card">
     <div id="payment-view-main">
       <div class="payment-icon"><i class="fas fa-shield-alt"></i></div>
       <h2>Secure Payment</h2>
       <p class="payment-subtitle">Cashfree Payment Gateway</p>
-      <div class="payment-amount" id="payment-view-amount">₹49</div>
+      <div class="payment-amount" id="payment-view-amount">₹1400</div>
       <div class="payment-detail">
         <div class="payment-detail-row"><span class="label">License Key</span><span class="value" id="payment-view-key">-</span></div>
         <div class="payment-detail-row"><span class="label">Username</span><span class="value" id="payment-view-user">-</span></div>
+        <div class="payment-detail-row"><span class="label">Days</span><span class="value" id="payment-view-days">-</span></div>
         <div class="payment-detail-row"><span class="label">Expiry</span><span class="value" id="payment-view-expiry">-</span></div>
+        <div class="payment-detail-row"><span class="label">Rate</span><span class="value" id="payment-view-rate">₹200/day</span></div>
       </div>
       <div class="payment-btn-group">
-        <button class="btn btn-primary" onclick="startPaymentProcessing()"><i class="fas fa-lock"></i> PAY ₹<span id="payment-view-amount-btn">49</span></button>
+        <button class="btn btn-primary" onclick="startPaymentProcessing()"><i class="fas fa-lock"></i> PAY ₹<span id="payment-view-amount-btn">1400</span></button>
         <button class="btn btn-secondary" onclick="cancelPayment()">CANCEL</button>
       </div>
       <div class="secure-badge"><i class="fas fa-lock"></i> Powered by Cashfree</div>

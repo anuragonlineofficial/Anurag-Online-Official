@@ -9,12 +9,14 @@ const DB_URL = CFG.FIREBASE.databaseURL + '/DPMods_Security';
 
 let DB = { App_Status:{}, Keys:{}, Operators:{}, Admins:{}, NextKeyNumber:1 };
 let CURRENT_ROLE='', CURRENT_USER_ID='', CURRENT_OP_ID='';
-let EDITING_KEY_ID=null, EDITING_USER_ID=null;
+let EDITING_KEY_ID=null;
 let PENDING_KEY_DATA=null, PENDING_TXN_ID=null;
 let CURRENT_FILTER='all', ID_TOKEN='';
+let PRICE_PER_DAY = 200;
 
 const $ = id => document.getElementById(id);
 
+// ─── TOAST ───
 window.showToast = function(msg, type='success') {
   const t = $('toast'), icon = $('toast-icon');
   t.style.borderColor = type==='danger' ? 'var(--danger)' : 'var(--accent-secondary)';
@@ -54,6 +56,7 @@ window.copyToClipboard = (text, msg='Copied') => {
   });
 };
 
+// ─── DB HELPERS ───
 function dbURL(path='') {
   return `${DB_URL}${path ? '/'+path : ''}.json?auth=${ID_TOKEN}`;
 }
@@ -88,6 +91,18 @@ function recalcNext() {
   DB.NextKeyNumber = highest + 1;
 }
 
+// ─── CONFIG FETCH ───
+async function fetchConfig() {
+  try {
+    const r = await fetch(`${CFG.BACKEND_URL}/api/config`);
+    const d = await r.json();
+    if (d.pricePerDay) PRICE_PER_DAY = d.pricePerDay;
+  } catch (e) {
+    console.error('Config fetch failed:', e);
+  }
+}
+
+// ─── LOGIN ───
 window.login = async function() {
   const btn = $('btn-login');
   btn.innerHTML = `<i class="fas fa-circle-notch fa-spin"></i> AUTHENTICATING...`;
@@ -110,17 +125,18 @@ window.login = async function() {
     CURRENT_OP_ID = (CURRENT_ROLE === 'operator') ? id : '';
 
     await fetchDB();
+    await fetchConfig();
 
     if (CURRENT_ROLE === 'admin') {
       $('nav-users').style.display = 'flex';
       $('nav-config').style.display = 'flex';
-      $('bottom-nav-users').style.display = 'flex';
-      $('bottom-nav-config').style.display = 'flex';
+      if ($('bottom-nav-users')) $('bottom-nav-users').style.display = 'flex';
+      if ($('bottom-nav-config')) $('bottom-nav-config').style.display = 'flex';
     } else {
       $('nav-users').style.display = 'none';
       $('nav-config').style.display = 'none';
-      $('bottom-nav-users').style.display = 'none';
-      $('bottom-nav-config').style.display = 'none';
+      if ($('bottom-nav-users')) $('bottom-nav-users').style.display = 'none';
+      if ($('bottom-nav-config')) $('bottom-nav-config').style.display = 'none';
     }
 
     switchScreen('screen-dashboard');
@@ -141,6 +157,9 @@ function resetLoginBtn() {
 
 window.logout = async function() {
   try { await signOut(auth); } catch {}
+  ID_TOKEN = '';
+  CURRENT_USER_ID = '';
+  CURRENT_ROLE = '';
   location.reload();
 };
 
@@ -148,26 +167,33 @@ window.syncDB = async function() {
   try {
     if (auth.currentUser) ID_TOKEN = await auth.currentUser.getIdToken(true);
     await fetchDB();
+    await fetchConfig();
     refreshUI();
     showToast('System Synced');
   } catch (e) { showToast('Sync error','danger'); }
 };
 
+// ─── FILTER ───
 window.setFilter = function(f) {
   CURRENT_FILTER = f;
   document.querySelectorAll('.date-chip[data-filter]').forEach(c => c.classList.toggle('active', c.dataset.filter === f));
   renderKeys();
 };
 
+// ─── RENDER KEYS ───
 window.renderKeys = function() {
   const list = $('list-keys'); if (!list) return;
   const search = ($('search-input')?.value || '').toLowerCase();
   list.innerHTML = '';
   let vis = 0;
+
   Object.keys(DB.Keys || {}).forEach(kid => {
     const d = DB.Keys[kid];
     const user = d.Username || 'Unknown';
+
+    // Operator: only own keys
     if (CURRENT_ROLE === 'operator' && d.CreatedBy !== CURRENT_USER_ID) return;
+
     if (search && !user.toLowerCase().includes(search) && !kid.toLowerCase().includes(search)) return;
 
     const isBanned = d.Banned === true;
@@ -195,25 +221,76 @@ window.renderKeys = function() {
       });
     }
 
-    list.innerHTML += `<div class="${cc}">
-      <div class="card-header"><div class="card-title"><i class="fas fa-fingerprint"></i><span>${kid}</span><i class="fas fa-copy copy-btn" onclick="copyToClipboard('${kid}','Copied')"></i></div><div class="${bc}">${bt}</div></div>
-      <div class="sleek-row"><div class="sleek-item"><i class="fas fa-user"></i> <strong>${user}</strong></div><div class="sleek-item"><i class="fas fa-calendar-alt"></i> <strong>${d.ExpiryDate||'Never'}</strong></div><div class="sleek-item"><i class="fas fa-mobile-alt"></i> <strong>${dc} / ${d.DeviceLimit||1}</strong></div></div>
-      ${dc>0?`<div class="device-chips">${dh}</div>`:''}
-      <div class="card-actions">
+    const priceTag = d.PaymentAmount ? `<div class="sleek-item"><i class="fas fa-rupee-sign"></i> <strong style="color:var(--success);">₹${d.PaymentAmount}</strong></div>` : '';
+    const daysTag = d.Days ? `<div class="sleek-item"><i class="fas fa-clock"></i> <strong>${d.Days}D</strong></div>` : '';
+
+    // Buttons per role
+    let actionBtns = '';
+    if (CURRENT_ROLE === 'admin') {
+      actionBtns = `
         <button class="btn-card btn-card-edit" onclick="editKey('${kid}')"><i class="fas fa-pen"></i> Edit</button>
         <button class="btn-card ${isBanned?'btn-card-edit':'btn-card-ban'}" onclick="toggleBan('${kid}')"><i class="fas ${isBanned?'fa-check-circle':'fa-ban'}"></i> ${isBanned?'Unban':'Ban'}</button>
         <button class="btn-card btn-card-delete" onclick="deleteKey('${kid}')"><i class="fas fa-trash"></i> Delete</button>
-      </div>
+      `;
+    } else {
+      actionBtns = `
+        <button class="btn-card btn-card-edit" onclick="editOperatorKey('${kid}')"><i class="fas fa-pen"></i> Edit Username</button>
+        <button class="btn-card btn-card-delete" onclick="deleteKey('${kid}')"><i class="fas fa-trash"></i> Delete</button>
+      `;
+    }
+
+    list.innerHTML += `<div class="${cc}">
+      <div class="card-header"><div class="card-title"><i class="fas fa-fingerprint"></i><span>${kid}</span><i class="fas fa-copy copy-btn" onclick="copyToClipboard('${kid}','Copied')"></i></div><div class="${bc}">${bt}</div></div>
+      <div class="sleek-row"><div class="sleek-item"><i class="fas fa-user"></i> <strong>${user}</strong></div><div class="sleek-item"><i class="fas fa-calendar-alt"></i> <strong>${d.ExpiryDate||'Never'}</strong></div><div class="sleek-item"><i class="fas fa-mobile-alt"></i> <strong>${dc} / ${d.DeviceLimit||1}</strong></div></div>
+      ${(priceTag||daysTag)?`<div class="sleek-row">${priceTag}${daysTag}</div>`:''}
+      ${dc>0?`<div class="device-chips">${dh}</div>`:''}
+      <div class="card-actions">${actionBtns}</div>
     </div>`;
   });
+
   if (vis === 0) list.innerHTML = `<div style="grid-column:1/-1;text-align:center;color:var(--text-secondary);padding:40px;font-weight:600;"><i class="fas fa-inbox" style="font-size:2rem;margin-bottom:16px;opacity:0.5;display:block;"></i> No keys found</div>`;
 };
 
+// ─── DAYS HANDLING ───
 window.addDays = function(d) {
-  const dt = new Date(); dt.setDate(dt.getDate() + d);
+  const dt = new Date();
+  dt.setDate(dt.getDate() + d);
   $('md-date').value = dt.toISOString().split('T')[0];
+  $('md-custom-days').value = d;
+  updatePriceDisplay(d);
 };
 
+window.onCustomDaysInput = function() {
+  const d = parseInt($('md-custom-days').value);
+  if (isNaN(d) || d < 1) return;
+  const dt = new Date();
+  dt.setDate(dt.getDate() + d);
+  $('md-date').value = dt.toISOString().split('T')[0];
+  updatePriceDisplay(d);
+};
+
+window.onDateChange = function() {
+  const dateVal = $('md-date').value;
+  if (!dateVal) return;
+  const expiry = new Date(dateVal);
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  expiry.setHours(0,0,0,0);
+  const days = Math.ceil((expiry - today) / (1000 * 60 * 60 * 24));
+  if (days > 0) {
+    $('md-custom-days').value = days;
+    updatePriceDisplay(days);
+  }
+};
+
+function updatePriceDisplay(days) {
+  if (CURRENT_ROLE !== 'operator') return;
+  const total = PRICE_PER_DAY * (parseInt(days) || 0);
+  if ($('payment-amount-display')) $('payment-amount-display').innerText = total;
+  if ($('btn-save-key')) $('btn-save-key').innerHTML = `<i class="fas fa-credit-card"></i> PAY ₹${total} & GENERATE`;
+}
+
+// ─── KEY GENERATION ───
 function generateNextKey() {
   recalcNext();
   return `AV-IND-${DB.NextKeyNumber || 1}`;
@@ -225,12 +302,11 @@ window.openAddKeyModal = function() {
   $('md-key').value = generateNextKey();
   $('md-user').value = '';
   $('md-limit').value = '1';
-  addDays(30);
-  const price = DB.App_Status?.KeyPrice || 49;
+  addDays(7);
+
   if (CURRENT_ROLE === 'operator') {
     $('operator-payment-info').style.display = 'block';
-    $('payment-amount-display').innerText = price;
-    $('btn-save-key').innerHTML = `<i class="fas fa-credit-card"></i> PAY ₹${price} & GENERATE`;
+    updatePriceDisplay(7);
   } else {
     $('operator-payment-info').style.display = 'none';
     $('btn-save-key').innerHTML = `<i class="fas fa-check"></i> SAVE KEY`;
@@ -238,7 +314,9 @@ window.openAddKeyModal = function() {
   openModal('modal-key');
 };
 
+// Admin edit key
 window.editKey = function(kid) {
+  if (CURRENT_ROLE !== 'admin') return;
   EDITING_KEY_ID = kid;
   const d = DB.Keys[kid];
   $('md-title').innerText = 'Edit License Key';
@@ -246,62 +324,134 @@ window.editKey = function(kid) {
   $('md-user').value = d.Username || '';
   $('md-limit').value = d.DeviceLimit || 1;
   $('md-date').value = d.ExpiryDate || '';
+  $('md-custom-days').value = d.Days || '';
   $('operator-payment-info').style.display = 'none';
   $('btn-save-key').innerHTML = `<i class="fas fa-check"></i> SAVE KEY`;
   openModal('modal-key');
 };
+
+// Operator: only username
+window.editOperatorKey = function(kid) {
+  const d = DB.Keys[kid];
+  if (!d) return;
+  if (d.CreatedBy !== CURRENT_USER_ID) { showToast('Not your key','danger'); return; }
+  const newName = prompt('Enter new Username:', d.Username || '');
+  if (!newName || !newName.trim()) return;
+  updateOperatorKey(kid, newName.trim());
+};
+
+async function updateOperatorKey(keyId, username) {
+  try {
+    const r = await fetch(`${CFG.BACKEND_URL}/api/operator/update-key`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + ID_TOKEN },
+      body: JSON.stringify({ keyId, username })
+    });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.error);
+    await fetchDB();
+    refreshUI();
+    showToast('Username updated');
+  } catch (e) {
+    showToast(e.message, 'danger');
+  }
+}
 
 window.handleSaveKeyClick = function() {
   const keyId = $('md-key').value.trim();
   const user = $('md-user').value.trim();
   const limit = parseInt($('md-limit').value) || 1;
   const expiry = $('md-date').value;
+  const days = parseInt($('md-custom-days').value) || 0;
+
   if (!keyId || !user) { showToast('Key and Username required','danger'); return; }
   if (!expiry) { showToast('Expiry required','danger'); return; }
+  if (days < 1) { showToast('Days required','danger'); return; }
 
-  if (CURRENT_ROLE === 'admin') { saveKeyDirectly(keyId, user, limit, expiry); return; }
+  if (CURRENT_ROLE === 'admin') { saveKeyDirectly(keyId, user, limit, expiry, days); return; }
   if (CURRENT_ROLE === 'operator') {
-    PENDING_KEY_DATA = { keyId, username: user, limit, expiry };
+    PENDING_KEY_DATA = { keyId, username: user, limit, expiry, days };
     closeModal('modal-key');
     openPaymentScreen();
   }
 };
 
-function saveKeyDirectly(keyId, user, limit, expiry) {
+function saveKeyDirectly(keyId, user, limit, expiry, days) {
   if (EDITING_KEY_ID === null) {
     if (DB.Keys[keyId]) { showToast('Key exists','danger'); return; }
     DB.Keys[keyId] = {
-      Devices: { dummy: 0 }, Banned: false, Username: user,
-      DeviceLimit: limit, ExpiryDate: expiry,
-      CreatedBy: CURRENT_USER_ID, CreatedAt: new Date().toISOString(),
-      PaymentStatus: 'FREE_ADMIN'
+      Devices: { dummy: 0 },
+      Banned: false,
+      Username: user,
+      DeviceLimit: limit,
+      ExpiryDate: expiry,
+      Days: days,
+      CreatedBy: CURRENT_USER_ID,
+      CreatedAt: new Date().toISOString(),
+      PaymentStatus: 'FREE_ADMIN',
+      PaymentAmount: 0
     };
     recalcNext();
   } else {
     const t = DB.Keys[EDITING_KEY_ID];
     if (!t) return showToast('Not found','danger');
-    t.Username = user; t.DeviceLimit = limit; t.ExpiryDate = expiry;
+    t.Username = user;
+    t.DeviceLimit = limit;
+    t.ExpiryDate = expiry;
+    t.Days = days;
   }
   pushDB(); closeModal('modal-key'); refreshUI(); showToast('Key Saved');
 }
 
-window.toggleBan = function(kid) {
-  const t = DB.Keys[kid]; t.Banned = !t.Banned;
-  pushDB(true); refreshUI();
-  showToast(t.Banned ? `${kid} Banned` : `${kid} Unbanned`, t.Banned ? 'danger' : 'success');
+// ─── BAN/UNBAN KEY ───
+window.toggleBan = async function(kid) {
+  try {
+    const r = await fetch(`${CFG.BACKEND_URL}/api/admin/toggle-key-ban`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + ID_TOKEN },
+      body: JSON.stringify({ keyId: kid })
+    });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.error);
+    await fetchDB();
+    refreshUI();
+    showToast(d.banned ? `${kid} Banned` : `${kid} Unbanned`, d.banned ? 'danger' : 'success');
+  } catch (e) {
+    showToast(e.message, 'danger');
+  }
 };
 
-window.deleteKey = function(kid) {
+// ─── DELETE KEY ───
+window.deleteKey = async function(kid) {
   if (!confirm(`Delete ${kid}?`)) return;
-  delete DB.Keys[kid]; recalcNext();
-  pushDB(); refreshUI(); showToast('Key Deleted','danger');
+  try {
+    const endpoint = CURRENT_ROLE === 'admin'
+      ? `${CFG.BACKEND_URL}/api/admin/delete-key`
+      : `${CFG.BACKEND_URL}/api/operator/delete-key`;
+
+    const r = await fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + ID_TOKEN },
+      body: JSON.stringify({ keyId: kid })
+    });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.error);
+    await fetchDB();
+    refreshUI();
+    showToast('Key Deleted','danger');
+  } catch (e) {
+    showToast(e.message, 'danger');
+  }
 };
 
+// ─── OPERATORS ───
 window.renderUsers = function() {
+  if (CURRENT_ROLE !== 'admin') return;
   const list = $('list-users'); if (!list) return;
   const search = ($('user-search-input')?.value || '').toLowerCase();
   list.innerHTML = '';
   let vis = 0;
+
   Object.keys(DB.Operators || {}).forEach(opId => {
     const data = DB.Operators[opId];
     const name = data.Name || opId;
@@ -328,7 +478,6 @@ window.renderUsers = function() {
 
 window.openAddUserModal = function() {
   if (CURRENT_ROLE !== 'admin') { showToast('Admin only','danger'); return; }
-  EDITING_USER_ID = null;
   $('mu-title').innerText = 'Create Operator User';
   $('mu-id').value = ''; $('mu-id').disabled = false;
   $('mu-name').value = ''; $('mu-pass').value = ''; $('mu-contact').value = '';
@@ -368,7 +517,7 @@ window.toggleUserBan = async function(opId) {
       body: JSON.stringify({ opId })
     });
     const d = await r.json();
-    if (!r.ok) throw new Error(d.error || 'Failed');
+    if (!r.ok) throw new Error(d.error);
     await fetchDB(); refreshUI();
     showToast(`${opId} ${d.banned ? 'Banned' : 'Unbanned'}`, d.banned ? 'danger' : 'success');
   } catch (e) { showToast(e.message, 'danger'); }
@@ -384,13 +533,15 @@ window.deleteUser = async function(opId) {
       body: JSON.stringify({ opId })
     });
     const d = await r.json();
-    if (!r.ok) throw new Error(d.error || 'Failed');
+    if (!r.ok) throw new Error(d.error);
     await fetchDB(); refreshUI();
     showToast('Deleted','danger');
   } catch (e) { showToast(e.message, 'danger'); }
 };
 
+// ─── CONFIG ───
 window.populateConfig = function() {
+  if (CURRENT_ROLE !== 'admin') return;
   const a = DB.App_Status || {};
   $('cfg-maintenance').checked = a.Maintenance === true;
   $('cfg-update').checked = a.Update_Required === true;
@@ -399,10 +550,10 @@ window.populateConfig = function() {
   $('cfg-admin').value = a.Admin_URL || '';
   $('cfg-updatelink').value = a.Update_Link || '';
   $('cfg-bans').value = a.Banned_Devices || '';
-  $('cfg-price').value = a.KeyPrice || 49;
+  $('cfg-price').value = a.KeyPrice || PRICE_PER_DAY;
 };
 
-window.saveConfig = function() {
+window.saveConfig = async function() {
   if (CURRENT_ROLE !== 'admin') { showToast('Admin only','danger'); return; }
   if (!DB.App_Status) DB.App_Status = {};
   const a = DB.App_Status;
@@ -413,22 +564,39 @@ window.saveConfig = function() {
   a.Admin_URL = $('cfg-admin').value.trim();
   a.Update_Link = $('cfg-updatelink').value.trim();
   a.Banned_Devices = $('cfg-bans').value.trim();
-  a.KeyPrice = parseInt($('cfg-price').value) || 49;
+  a.KeyPrice = parseInt($('cfg-price').value) || PRICE_PER_DAY;
   pushDB();
+
+  // Notify Telegram
+  try {
+    await fetch(`${CFG.BACKEND_URL}/api/admin/config-updated`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + ID_TOKEN },
+      body: JSON.stringify({
+        title: a.Dialog_Title,
+        subtitle: a.Dialog_Subtitle,
+        price: a.KeyPrice
+      })
+    });
+  } catch (e) {}
+
   showToast('Config Saved');
 };
 
+// ─── PAYMENT ───
 function openPaymentScreen() {
-  const price = DB.App_Status?.KeyPrice || 49;
+  const perDay = PRICE_PER_DAY;
+  const total = perDay * PENDING_KEY_DATA.days;
+
   $('payment-view-main').style.display = 'block';
   $('payment-view-processing').classList.remove('active');
   $('payment-view-success').classList.remove('active');
   $('payment-view-fail').classList.remove('active');
-  $('payment-view-amount').innerText = '₹' + price;
-  $('payment-view-amount-btn').innerText = price;
+  $('payment-view-amount').innerText = '₹' + total;
+  $('payment-view-amount-btn').innerText = total;
   $('payment-view-key').innerText = PENDING_KEY_DATA.keyId;
   $('payment-view-user').innerText = PENDING_KEY_DATA.username;
-  $('payment-view-expiry').innerText = PENDING_KEY_DATA.expiry;
+  $('payment-view-expiry').innerText = `${PENDING_KEY_DATA.expiry} (${PENDING_KEY_DATA.days} days)`;
   $('payment-screen').classList.add('active');
 }
 
@@ -448,6 +616,7 @@ window.startPaymentProcessing = async function() {
   $('payment-view-processing').classList.add('active');
   const st = $('payment-status-text');
   st.innerText = 'Creating secure order...';
+
   try {
     const r = await fetch(`${CFG.BACKEND_URL}/api/payment/create-order`, {
       method: 'POST',
@@ -460,7 +629,7 @@ window.startPaymentProcessing = async function() {
     PENDING_TXN_ID = data.orderId;
     st.innerText = 'Opening Cashfree checkout...';
 
-    const cashfree = Cashfree({ mode: CFG.CASHFREE_MODE || 'sandbox' });
+    const cashfree = Cashfree({ mode: CFG.CASHFREE_MODE || 'production' });
     const result = await cashfree.checkout({
       paymentSessionId: data.paymentSessionId,
       redirectTarget: '_modal'
@@ -512,7 +681,9 @@ async function verifyPaymentBackend(orderId) {
             clearInterval(iv);
             showPaymentFailure(d2.error || 'Not paid');
           }
-        } catch (e) { if (tries >= 5) { clearInterval(iv); showPaymentFailure('Verify failed'); } }
+        } catch (e) {
+          if (tries >= 5) { clearInterval(iv); showPaymentFailure('Verify failed'); }
+        }
       }, 3000);
     }
   } catch (e) { showPaymentFailure('Verification failed'); }
@@ -528,6 +699,7 @@ function showPaymentFailure(reason) {
 
 function refreshUI() { renderKeys(); renderUsers(); populateConfig(); }
 
+// ─── DISABLE DEV TOOLS ───
 document.addEventListener('keydown', e => {
   if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C'))) {
     e.preventDefault();
@@ -535,6 +707,7 @@ document.addEventListener('keydown', e => {
 });
 document.addEventListener('contextmenu', e => e.preventDefault());
 
+// ─── INIT (AUTO-LOGIN DISABLED) ───
 window.onload = () => {
   const c = $('particles');
   for (let i = 0; i < 40; i++) {
@@ -549,16 +722,13 @@ window.onload = () => {
     c.appendChild(p);
   }
 
-  auth.onAuthStateChanged(async user => {
-    if (user) {
-      ID_TOKEN = await user.getIdToken();
-      CURRENT_USER_ID = user.uid;
-      CURRENT_ROLE = user.email === 'admin@anurag.online' ? 'admin' : 'operator';
-      try {
-        await fetchDB();
-        switchScreen('screen-dashboard');
-        nav('keys');
-      } catch (e) { console.error(e); }
-    }
-  });
+  // AUTO-LOGIN OFF — user must login every time
+  // Session cleared on page load
+  try { localStorage.removeItem('idToken'); } catch {}
+
+  // Clear inputs
+  const idField = $('auth-id');
+  const passField = $('auth-pass');
+  if (idField) idField.value = '';
+  if (passField) passField.value = '';
 };
