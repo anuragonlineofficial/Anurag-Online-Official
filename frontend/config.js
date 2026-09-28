@@ -9,5 +9,5 @@ window.APP_CONFIG = {
     appId: "1:451169564297:web:d891b4bf9975266d977858"
   },
   BACKEND_URL: "https://anurag-online-backend.onrender.com",
-  CASHFREE_MODE: "sandbox"
+  CASHFREE_MODE: "production"
 };
