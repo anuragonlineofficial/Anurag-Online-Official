@@ -1,1550 +1,205 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#000000">
-<meta name="description" content="Anurag Online Official - Secure Digital Access Key Management & Payment Platform">
+<meta name="description" content="Anurag Online Official — Secure Digital Access">
 <title>Anurag Online Official</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<script src="https://sdk.cashfree.com/js/v3/cashfree.js"></script>
-<style>
-:root{--primary:#06b6d4;--primary-dark:#0891b2;--primary-light:#22d3ee;--primary-shine:rgba(6,182,212,0.45);--accent:#a855f7;--accent-shine:rgba(168,85,247,0.5);--bg-base:#000;--bg-card:#0f0f0f;--bg-input:#1a1a1a;--bg-elevated:#161616;--border-soft:rgba(255,255,255,0.08);--border-primary:rgba(6,182,212,0.3);--text-main:#fff;--text-dim:#a1a1aa;--text-muted:#71717a;--danger:#ef4444;--danger-shine:rgba(239,68,68,0.5);--success:#10b981;--success-shine:rgba(16,185,129,0.5);--warning:#f59e0b;--warning-shine:rgba(245,158,11,0.5);--lime:#84cc16;--radius-sm:14px;--nav-height:80px;--font-ui:'Outfit',sans-serif;--font-code:'JetBrains Mono',monospace}
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-input,textarea,select{font-family:var(--font-ui)}
-body{background:var(--bg-base);color:var(--text-main);font-family:var(--font-ui);min-height:100dvh;overflow-x:hidden;background-image:radial-gradient(circle at 50% -20%,rgba(6,182,212,0.15) 0,transparent 60%),radial-gradient(circle at 0 100%,rgba(168,85,247,0.08) 0,transparent 50%);background-attachment:fixed}
-:focus-visible{outline:0}
-::-webkit-scrollbar{width:6px;height:6px}
-::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:rgba(6,182,212,0.3);border-radius:6px}
-@keyframes warningPulse{0%,100%{border-color:rgba(239,68,68,0.35);box-shadow:0 0 0 rgba(239,68,68,0) inset}50%{border-color:rgba(239,68,68,0.65);box-shadow:0 0 20px rgba(239,68,68,0.25) inset}}
-@keyframes pulseGlow{0%,100%{transform:scale(1);box-shadow:0 0 0 rgba(16,185,129,0)}50%{transform:scale(1.05);box-shadow:0 0 30px rgba(16,185,129,0.4)}}
-.app-container{max-width:800px;margin:0 auto;padding-bottom:calc(var(--nav-height) + 20px);display:flex;flex-direction:column;min-height:100dvh}
-#dynamic-island{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-30px) scale(0.8);background:linear-gradient(135deg,#1e1e1e,#0a0a0a);color:#fff;border-radius:16px;padding:14px 22px;display:flex;align-items:center;justify-content:center;gap:10px;font-weight:700;font-size:0.9rem;border:1px solid var(--border-soft);opacity:0;pointer-events:none;z-index:10000;transition:all 0.5s cubic-bezier(0.34,1.56,0.64,1);box-shadow:0 10px 40px rgba(0,0,0,0.9),0 0 30px rgba(6,182,212,0.3);min-width:220px;backdrop-filter:blur(20px)}
-#dynamic-island.show{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}
-#dynamic-island i{font-size:1.3rem}
-#login-screen{display:flex;flex-direction:column;justify-content:center;align-items:center;min-height:100dvh;padding:24px;text-align:center}
-.logo-icon{font-size:5rem;color:var(--primary);margin-bottom:15px;filter:drop-shadow(0 0 30px var(--primary-shine));animation:logoFloat 3s ease-in-out infinite}
-@keyframes logoFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
-#login-screen h1{font-size:2.2rem;font-weight:900;line-height:1.05;margin-bottom:30px;text-transform:uppercase;letter-spacing:-1.5px;background:linear-gradient(135deg,#fff 0,var(--primary-light) 50%,var(--primary) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;background-size:200% auto}
-.login-card{background:linear-gradient(135deg,var(--bg-card),var(--bg-elevated));padding:32px 26px;border-radius:24px;width:100%;max-width:400px;border:1px solid var(--border-soft);box-shadow:0 25px 60px rgba(0,0,0,0.9),0 0 40px rgba(6,182,212,0.15);position:relative;overflow:hidden}
-.login-card::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:conic-gradient(from 0deg,transparent,rgba(6,182,212,0.08),transparent 30%);animation:cardRotate 6s linear infinite;pointer-events:none}
-@keyframes cardRotate{from{transform:rotate(0)}to{transform:rotate(360deg)}}
-.login-card > *{position:relative;z-index:1}
-.input-group{margin-bottom:16px;text-align:left;width:100%}
-.input-group label{display:block;font-size:0.72rem;color:var(--text-dim);font-weight:800;margin-bottom:8px;margin-left:4px;text-transform:uppercase;letter-spacing:1px}
-.input-group input,.input-group textarea,.input-group select{width:100%;background:var(--bg-input);border:1px solid var(--border-soft);border-radius:var(--radius-sm);padding:16px 18px;color:#fff;font-size:0.95rem;font-weight:600;outline:0;transition:all 0.3s ease;box-shadow:inset 0 2px 5px rgba(0,0,0,0.5)}
-.input-group input:focus,.input-group textarea:focus,.input-group select:focus{border-color:var(--primary);background:rgba(6,182,212,0.05);box-shadow:0 0 0 3px rgba(6,182,212,0.1),0 0 20px var(--primary-shine)}
-.btn{width:100%;padding:17px;border-radius:var(--radius-sm);border:none;font-size:1.05rem;font-weight:800;text-transform:uppercase;cursor:pointer;transition:all 0.3s ease;color:#fff;font-family:var(--font-ui);letter-spacing:0.5px}
-.btn-primary{background:linear-gradient(135deg,var(--primary),var(--primary-dark));box-shadow:0 8px 25px var(--primary-shine)}
-.btn-primary:active{transform:scale(0.97)}
-.btn-primary:disabled{opacity:0.5;cursor:not-allowed}
-.login-hint{margin-top:16px;padding:12px 14px;background:rgba(6,182,212,0.05);border:1px solid rgba(6,182,212,0.15);border-radius:12px;font-size:0.72rem;color:var(--text-dim);font-weight:600;line-height:1.6;text-align:left}
-.login-hint i{color:var(--primary)}
-.login-hint b{color:var(--primary)}
-.legal-links{margin-top:18px;display:flex;flex-wrap:wrap;justify-content:center;gap:6px;font-size:0.7rem}
-.legal-links a{color:var(--text-dim);text-decoration:none;font-weight:700;padding:6px 10px;border-radius:8px;transition:all 0.25s;border:1px solid transparent;cursor:pointer}
-.legal-links a:hover{color:var(--primary);background:rgba(6,182,212,0.08);border-color:rgba(6,182,212,0.2)}
-.legal-links .sep{color:var(--text-muted);opacity:0.5;padding:6px 0}
-.page-header{padding:30px 20px 15px;display:flex;justify-content:space-between;align-items:flex-end;position:sticky;top:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(20px);z-index:50;border-bottom:1px solid rgba(255,255,255,0.05)}
-.header-title-box{display:flex;flex-direction:column;align-items:flex-start}
-.app-main-title{font-size:1.4rem;font-weight:900;letter-spacing:-0.5px;text-transform:uppercase;color:#fff;text-shadow:0 0 15px var(--primary-shine)}
-.app-sub-title{font-size:0.7rem;color:var(--text-dim);font-weight:800;text-transform:uppercase;letter-spacing:1.5px}
-.user-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:8px;font-size:0.65rem;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px}
-.user-badge.admin{background:rgba(168,85,247,0.15);color:var(--accent);border:1px solid rgba(168,85,247,0.3)}
-.user-badge.operator{background:rgba(6,182,212,0.15);color:var(--primary);border:1px solid rgba(6,182,212,0.3)}
-.header-actions{display:flex;gap:8px;align-items:center;margin-bottom:4px}
-.btn-icon{background:var(--bg-input);border:1px solid var(--border-soft);color:var(--text-main);width:42px;height:42px;border-radius:50%;font-size:1rem;display:flex;justify-content:center;align-items:center;cursor:pointer;transition:all 0.3s ease;box-shadow:inset 0 2px 4px rgba(0,0,0,0.5)}
-.btn-icon:active{transform:scale(0.88);background:var(--primary);border-color:var(--primary);box-shadow:0 0 20px var(--primary-shine)}
-.btn-icon.logout{color:var(--danger)}
-@keyframes spin{100%{transform:rotate(360deg)}}
-.spin{animation:spin 0.8s linear infinite}
-.fab-btn{position:fixed;bottom:calc(var(--nav-height) + 20px);right:20px;width:62px;height:62px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:#fff;border:none;font-size:1.5rem;display:flex;justify-content:center;align-items:center;box-shadow:0 10px 30px var(--primary-shine);cursor:pointer;z-index:90;transition:all 0.3s ease}
-.fab-btn:active{transform:scale(0.85) rotate(90deg)}
-.search-bar-container{padding:15px 20px;position:sticky;top:85px;background:rgba(0,0,0,0.85);backdrop-filter:blur(20px);z-index:49}
-.search-bar{width:100%;background:var(--bg-input);border:1px solid var(--border-soft);border-radius:var(--radius-sm);padding:15px 16px 15px 46px;color:#fff;font-size:0.95rem;outline:0;font-weight:600;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512' fill='%23a1a1aa'%3E%3Cpath d='M416 208c0 45.9-14.9 88.3-40 122.7L502.6 456.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352a144 144 0 1 0 0-288 144 144 0 1 0 0 288z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:16px center;background-size:16px}
-.search-bar:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(6,182,212,0.1),0 0 20px var(--primary-shine)}
-.filters-container{display:flex;gap:10px;overflow-x:auto;white-space:nowrap;scrollbar-width:none;padding-top:12px}
-.filters-container::-webkit-scrollbar{display:none}
-.filter-pill{padding:8px 16px;border-radius:20px;background:var(--bg-card);border:1px solid var(--border-soft);color:var(--text-dim);font-size:0.72rem;font-weight:800;text-transform:uppercase;cursor:pointer;transition:all 0.3s ease;flex-shrink:0;letter-spacing:0.5px}
-.filter-pill.active[data-filter="all"]{background:rgba(6,182,212,0.15);color:var(--primary);border-color:var(--primary)}
-.filter-pill.active[data-filter="active"]{background:rgba(16,185,129,0.15);color:var(--success);border-color:var(--success)}
-.filter-pill.active[data-filter="pending"]{background:rgba(245,158,11,0.15);color:var(--warning);border-color:var(--warning)}
-.filter-pill.active[data-filter="nearby"]{background:rgba(132,204,22,0.15);color:var(--lime);border-color:var(--lime)}
-.filter-pill.active[data-filter="expired"]{background:rgba(239,68,68,0.15);color:var(--danger);border-color:var(--danger)}
-.filter-pill.active[data-filter="banned"]{background:rgba(239,68,68,0.15);color:var(--danger);border-color:var(--danger)}
-#keys-list,#bans-list,#trials-list,#operators-list{padding:0 20px;display:flex;flex-direction:column;gap:14px}
-.list-card{background:linear-gradient(135deg,var(--bg-card),var(--bg-elevated));border-radius:var(--radius-sm);padding:18px;display:flex;flex-direction:column;border:1px solid var(--border-soft);transition:all 0.4s ease;position:relative;overflow:hidden;box-shadow:0 4px 15px rgba(0,0,0,0.5)}
-.list-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--primary);border-radius:4px 0 0 4px;box-shadow:2px 0 15px var(--primary-shine)}
-.list-card.active::before{background:var(--success)}
-.list-card.pending::before{background:var(--warning)}
-.list-card.nearby::before{background:var(--lime)}
-.list-card.banned::before{background:var(--danger)}
-.list-card.expired::before{background:var(--danger)}
-.list-card.operator::before{background:var(--accent)}
-.card-header-main{display:flex;justify-content:space-between;align-items:center;cursor:pointer;user-select:none}
-.card-header-left{display:flex;flex-direction:column;gap:6px;flex:1}
-.card-header-right{display:flex;align-items:center;gap:12px}
-.card-title{font-family:var(--font-code);font-size:1.05rem;font-weight:800;color:#fff;display:flex;align-items:center;gap:8px;word-break:break-all}
-.card-title.copyable{cursor:pointer;transition:all 0.2s ease;border-radius:6px;padding:2px 4px;margin:-2px -4px}
-.card-title.copyable:active{background:rgba(6,182,212,0.15);transform:scale(0.97)}
-.card-title .copy-hint{font-size:0.6rem;color:var(--text-muted);font-weight:600;opacity:0.7;margin-left:4px;transition:all 0.2s ease}
-.card-title.copyable:hover .copy-hint{opacity:1;color:var(--primary)}
-.card-subtitle{font-size:0.75rem;color:var(--text-dim);font-weight:600;display:flex;gap:12px;flex-wrap:wrap}
-.badge{font-size:0.6rem;font-weight:800;padding:5px 11px;border-radius:8px;text-transform:uppercase;background:rgba(255,255,255,0.05);color:var(--text-dim);border:1px solid transparent;letter-spacing:0.5px}
-.badge.active{background:rgba(16,185,129,0.15);color:var(--success);border-color:rgba(16,185,129,0.3)}
-.badge.pending{background:rgba(234,179,8,0.15);color:var(--warning);border-color:rgba(234,179,8,0.3)}
-.badge.nearby{background:rgba(132,204,22,0.15);color:var(--lime);border-color:rgba(132,204,22,0.3)}
-.badge.banned{background:rgba(239,68,68,0.15);color:var(--danger);border-color:rgba(239,68,68,0.3)}
-.badge.expired{background:rgba(239,68,68,0.15);color:var(--danger);border-color:rgba(239,68,68,0.3)}
-.badge.owner-admin{background:rgba(168,85,247,0.15);color:var(--accent);border-color:rgba(168,85,247,0.3);font-size:0.55rem;padding:4px 8px}
-.badge.owner-operator{background:rgba(6,182,212,0.15);color:var(--primary);border-color:rgba(6,182,212,0.3);font-size:0.55rem;padding:4px 8px}
-.badge.payment-tag{background:rgba(16,185,129,0.15);color:var(--success);border-color:rgba(16,185,129,0.3);font-size:0.55rem;padding:4px 8px}
-.badge.non-refundable{background:rgba(239,68,68,0.15);color:var(--danger);border-color:rgba(239,68,68,0.3);font-size:0.55rem;padding:4px 8px}
-.chevron-icon{font-size:0.9rem;color:var(--text-dim);transition:transform 0.4s ease}
-.list-card.expanded .chevron-icon{transform:rotate(180deg);color:var(--primary)}
-.card-details{max-height:0;overflow:hidden;opacity:0;display:flex;flex-direction:column;gap:10px;transition:max-height 0.5s ease,opacity 0.3s ease,margin-top 0.3s ease,padding-top 0.3s ease}
-.list-card.expanded .card-details{max-height:1400px;opacity:1;margin-top:14px;padding-top:14px;border-top:1px dashed rgba(255,255,255,0.1)}
-.devices-wrapper{max-height:350px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding-right:4px}
-.devices-wrapper::-webkit-scrollbar{display:block;width:4px}
-.devices-wrapper::-webkit-scrollbar-thumb{background:rgba(6,182,212,0.4);border-radius:4px}
-.device-box{display:flex;flex-direction:column;gap:4px;font-size:0.8rem;padding:14px;background:var(--bg-input);border-radius:12px;border:1px solid rgba(255,255,255,0.03)}
-.interactive-text{cursor:pointer;transition:all 0.2s ease;display:inline-flex;align-items:center;gap:6px;user-select:none}
-.interactive-text:active{opacity:0.5;transform:scale(0.98)}
-.device-hwid{font-family:var(--font-code);color:#a1a1aa;font-weight:500;word-break:break-all}
-.card-actions{display:flex;gap:10px;margin-top:8px;flex-wrap:wrap}
-.btn-xs{flex:1;min-width:70px;padding:13px;border-radius:12px;font-size:0.72rem;font-weight:800;cursor:pointer;color:#fff;background:rgba(255,255,255,0.05);border:none;display:flex;justify-content:center;align-items:center;gap:6px;text-transform:uppercase;transition:all 0.3s ease;letter-spacing:0.5px}
-.btn-xs:active{transform:scale(0.92)}
-.btn-xs.edit{color:var(--primary);background:rgba(6,182,212,0.1)}
-.btn-xs.ban{color:var(--warning);background:rgba(245,158,11,0.1)}
-.btn-xs.del{color:var(--danger);background:rgba(239,68,68,0.1)}
-.btn-xs.approve{color:var(--success);background:rgba(16,185,129,0.15)}
-.btn-xs.unban{color:var(--success);background:rgba(16,185,129,0.1)}
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.8);backdrop-filter:blur(8px);display:none;justify-content:center;align-items:flex-end;z-index:1000;opacity:0;transition:opacity 0.3s ease}
-.modal-overlay.active{display:flex;opacity:1}
-.modal-card{background:linear-gradient(135deg,var(--bg-card),var(--bg-elevated));width:100%;max-width:600px;border-radius:28px 28px 0 0;padding:24px 24px 40px;transform:translateY(100%);transition:transform 0.5s cubic-bezier(0.34,1.56,0.64,1);border-top:1px solid var(--border-primary);box-shadow:0 -10px 50px rgba(0,0,0,0.9);max-height:90dvh;overflow-y:auto}
-.modal-overlay.active .modal-card{transform:translateY(0)}
-.modal-handle{width:40px;height:5px;background:rgba(255,255,255,0.2);border-radius:3px;margin:-10px auto 20px}
-.modal-title{font-size:1.3rem;font-weight:900;margin-bottom:22px;text-align:center;text-transform:uppercase;letter-spacing:1px;color:var(--text-main);text-shadow:0 0 15px var(--primary-shine)}
-.bottom-nav{position:fixed;bottom:0;left:0;width:100%;height:var(--nav-height);background:rgba(10,10,10,0.95);backdrop-filter:blur(25px);border-top:1px solid rgba(255,255,255,0.05);display:flex;justify-content:space-around;align-items:center;z-index:100;padding-bottom:env(safe-area-inset-bottom);box-shadow:0 -5px 30px rgba(0,0,0,0.9)}
-.nav-item{color:var(--text-dim);display:flex;flex-direction:column;align-items:center;gap:6px;font-size:0.6rem;font-weight:800;cursor:pointer;transition:all 0.3s ease;flex:1;padding:10px 4px;text-transform:uppercase;letter-spacing:0.5px;position:relative}
-.nav-item::after{content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%) scaleX(0);width:60%;height:3px;background:var(--primary);border-radius:3px 3px 0 0;box-shadow:0 0 15px var(--primary-shine);transition:transform 0.3s ease}
-.nav-item.active::after{transform:translateX(-50%) scaleX(1)}
-.nav-item.active{color:var(--primary);text-shadow:0 0 15px var(--primary-shine)}
-.nav-item i{font-size:1.3rem;transition:all 0.3s ease}
-.nav-item.active i{transform:scale(1.2) translateY(-2px)}
-.nav-item.admin-nav.active{color:var(--accent)}
-.nav-item.admin-nav.active::after{background:var(--accent);box-shadow:0 0 15px var(--accent-shine)}
-.view{display:none}
-.view.active{display:block;animation:fadeIn 0.4s ease}
-@keyframes fadeIn{from{opacity:0;transform:translateY(15px)}to{opacity:1;transform:translateY(0)}}
-.toggle-wrapper{display:flex;justify-content:space-between;align-items:center;background:var(--bg-card);padding:16px 18px;border-radius:var(--radius-sm);border:1px solid var(--border-soft);margin-bottom:16px;cursor:pointer}
-.toggle-switch{width:46px;height:26px;background:rgba(255,255,255,0.1);border-radius:20px;position:relative;flex-shrink:0}
-.toggle-switch::after{content:'';position:absolute;top:3px;left:3px;width:20px;height:20px;background:#fff;border-radius:50%;transition:all 0.3s ease}
-.toggle-wrapper.active{border-color:var(--border-primary);background:rgba(6,182,212,0.05)}
-.toggle-wrapper.active .toggle-switch{background:var(--primary)}
-.toggle-wrapper.active .toggle-switch::after{transform:translateX(20px)}
-.empty-state{text-align:center;padding:50px 20px;color:var(--text-dim);font-weight:600;font-size:0.95rem}
-.empty-state::before{content:'\f0eb';font-family:'Font Awesome 6 Free';font-weight:400;display:block;font-size:3rem;color:var(--text-muted);margin-bottom:15px;opacity:0.3}
-.input-wrapper-center{width:100%;padding:0 20px}
-.quick-days{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:8px}
-.day-btn{padding:14px 10px;border-radius:12px;background:rgba(6,182,212,0.1);border:1px solid rgba(6,182,212,0.3);color:var(--primary);font-size:0.78rem;font-weight:800;cursor:pointer;transition:all 0.3s ease;text-align:center;font-family:var(--font-ui);position:relative}
-.day-btn:active{transform:scale(0.92)}
-.day-btn.selected{background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:#fff;box-shadow:0 0 25px var(--primary-shine);transform:scale(1.03);border-color:var(--primary-light)}
-.day-btn .price-tag{display:block;font-size:0.75rem;opacity:0.95;margin-top:3px;font-weight:800}
-.day-btn.selected .price-tag{opacity:1;color:#fff}
-.expiry-preview{font-size:0.72rem;color:var(--success);font-weight:700;margin-top:8px;display:flex;align-items:center;gap:6px;padding:10px 12px;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);border-radius:10px}
-.change-pass-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);color:var(--warning);border-radius:10px;font-size:0.72rem;font-weight:800;cursor:pointer;margin-top:10px;text-transform:uppercase}
-.change-pass-btn:active{transform:scale(0.95)}
-.info-card{background:rgba(6,182,212,0.05);border:1px solid rgba(6,182,212,0.2);border-radius:14px;padding:14px 16px;margin-bottom:16px;font-size:0.78rem;color:var(--text-dim);line-height:1.6;text-align:left}
-.info-card b{color:var(--primary)}
-.payment-link-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:16px;border-radius:var(--radius-sm);background:linear-gradient(135deg,#10b981,#059669);color:#fff;border:none;font-size:0.95rem;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;cursor:pointer;box-shadow:0 8px 25px var(--success-shine);transition:all 0.3s ease;margin-bottom:12px;font-family:var(--font-ui)}
-.payment-link-btn:active{transform:scale(0.97)}
-.payment-link-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none;background:rgba(255,255,255,0.05);box-shadow:none}
-.policy-page{display:none;padding:30px 24px 100px;max-width:800px;margin:0 auto;min-height:100dvh;background:var(--bg-base);position:fixed;inset:0;overflow-y:auto;z-index:900}
-.policy-page.active{display:block}
-.policy-header{display:flex;align-items:center;gap:14px;margin-bottom:24px;padding-bottom:18px;border-bottom:1px solid var(--border-soft)}
-.policy-back-btn{background:var(--bg-input);border:1px solid var(--border-soft);color:var(--text-main);width:44px;height:44px;border-radius:12px;font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.3s ease;flex-shrink:0}
-.policy-back-btn:active{transform:scale(0.9);background:var(--primary);border-color:var(--primary)}
-.policy-header-text h1{font-size:1.4rem;font-weight:900;text-transform:uppercase;letter-spacing:-0.5px;background:linear-gradient(135deg,#fff,var(--primary-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.policy-header-text p{font-size:0.7rem;color:var(--text-dim);font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-top:4px}
-.policy-content{background:linear-gradient(135deg,var(--bg-card),var(--bg-elevated));border:1px solid var(--border-soft);border-radius:20px;padding:24px 20px;font-size:0.88rem;line-height:1.75;color:var(--text-dim)}
-.policy-content h2{color:var(--primary);font-size:1rem;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;margin:22px 0 10px;display:flex;align-items:center;gap:8px}
-.policy-content h2:first-child{margin-top:0}
-.policy-content p{margin-bottom:12px}
-.policy-content ul{margin:10px 0 14px 20px;padding-left:4px}
-.policy-content ul li{margin-bottom:6px;line-height:1.7}
-.policy-content strong{color:#fff;font-weight:700}
-.policy-content a{color:var(--primary);text-decoration:none;font-weight:700}
-.policy-meta{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px;padding-bottom:16px;border-bottom:1px dashed rgba(255,255,255,0.1)}
-.policy-meta span{font-size:0.68rem;font-weight:800;padding:6px 12px;background:rgba(6,182,212,0.1);border:1px solid rgba(6,182,212,0.25);border-radius:8px;color:var(--primary);text-transform:uppercase;letter-spacing:0.5px}
-.policy-contact-box{background:rgba(6,182,212,0.05);border:1px solid rgba(6,182,212,0.2);border-radius:14px;padding:16px;margin-top:20px;font-size:0.82rem}
-.policy-contact-box b{color:var(--primary)}
-.locked-price{position:relative}
-.locked-price::after{content:'\f023';font-family:'Font Awesome 6 Free';font-weight:900;position:absolute;right:14px;top:50%;transform:translateY(-50%);color:var(--success);font-size:0.85rem;pointer-events:none}
-.db-info{font-size:0.65rem;color:var(--text-muted);text-align:center;padding:10px;word-break:break-all}
-.db-info b{color:var(--primary)}
-</style>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
+<!-- DYNAMIC ISLAND -->
 <div id="dynamic-island">
-    <i id="di-icon" class="fas fa-check-circle" style="color:var(--primary)"></i> 
-    <span id="di-msg">Success</span>
+  <i id="di-icon" class="fas fa-check-circle"></i>
+  <span id="di-msg">Success</span>
 </div>
 
 <!-- LOGIN -->
 <div id="login-screen">
-    <div class="logo-icon"><i class="fas fa-shield-halved"></i></div>
-    <h1>ANURAG<br>ONLINE<br>OFFICIAL</h1>
-    
-    <div class="login-card">
-        <div class="input-group">
-            <label><i class="fas fa-user"></i> Username / Email</label>
-            <input type="text" id="login-username" placeholder="Enter your username" autocomplete="off">
-        </div>
-        <div class="input-group">
-            <label><i class="fas fa-lock"></i> Password</label>
-            <input type="password" id="login-password" placeholder="Enter your password" autocomplete="off">
-        </div>
-        <button class="btn btn-primary" id="login-btn" onclick="doLogin()">
-            <i class="fas fa-fingerprint" style="margin-right:8px"></i> <span id="login-btn-text">LOGIN</span>
-        </button>
-        
-        <div class="login-hint">
-            <i class="fas fa-info-circle"></i> <b>Note:</b> Admin / Operator credentials apne provider se lein.<br>
-            <i class="fas fa-shield-alt"></i> Authorized access only.
-        </div>
+  <div class="logo-icon"><i class="fas fa-shield-halved"></i></div>
+  <h1>ANURAG<br>ONLINE<br>OFFICIAL</h1>
 
-        <div class="legal-links">
-            <a onclick="openPolicy('terms')">Terms</a>
-            <span class="sep">•</span>
-            <a onclick="openPolicy('privacy')">Privacy</a>
-            <span class="sep">•</span>
-            <a onclick="openPolicy('refund')">Refund</a>
-        </div>
+  <div class="login-card">
+    <div class="input-group">
+      <label><i class="fas fa-user"></i> Username</label>
+      <input type="text" id="login-username" placeholder="Enter username" autocomplete="username">
     </div>
+    <div class="input-group">
+      <label><i class="fas fa-lock"></i> Password</label>
+      <input type="password" id="login-password" placeholder="Enter password" autocomplete="current-password">
+    </div>
+    <button class="btn btn-primary" id="login-btn" onclick="doLogin()">
+      <i class="fas fa-fingerprint" style="margin-right:8px"></i>
+      <span id="login-btn-text">LOGIN</span>
+    </button>
 
-    <div style="margin-top:25px">
-        <a href="https://t.me/AnuragOnlineOfficial" target="_blank" style="display:inline-flex;align-items:center;gap:8px;color:var(--primary);text-decoration:none;font-size:0.85rem;font-weight:800;padding:12px 20px;background:rgba(6,182,212,0.1);border:1px solid rgba(6,182,212,0.3);border-radius:14px">
-            <i class="fab fa-telegram" style="font-size:1.2rem"></i>
-            <span>@AnuragOnlineOfficial</span>
-        </a>
+    <div class="login-hint">
+      <i class="fas fa-info-circle"></i> <b>Note:</b> Admin / Operator credentials apne provider se lein.
     </div>
+  </div>
+
+  <div class="footer-contact">
+    <a href="https://t.me/AnuragOnlineOfficial" target="_blank">
+      <i class="fab fa-telegram"></i> @AnuragOnlineOfficial
+    </a>
+  </div>
 </div>
 
 <!-- MAIN APP -->
 <div class="app-container" id="main-app" style="display:none">
-    <div class="page-header">
-        <div class="header-title-box">
-            <span class="user-badge" id="user-badge">OPERATOR</span>
-            <span class="app-main-title">Anurag Online Official</span>
-            <span class="app-sub-title" id="page-subtitle-text">Manage Access</span>
-        </div>
-        <div class="header-actions">
-            <button class="btn-icon" onclick="syncDB()"><i class="fas fa-sync-alt" id="reload-icon"></i></button>
-            <button class="btn-icon logout" onclick="logout()"><i class="fas fa-power-off"></i></button>
-        </div>
+  <div class="page-header">
+    <div class="header-title-box">
+      <span class="user-badge" id="user-badge">OPERATOR</span>
+      <span class="app-main-title">Anurag Online Official</span>
+      <span class="app-sub-title" id="page-subtitle-text">Manage Access</span>
     </div>
-
-    <div id="view-keys" class="view active">
-        <div class="search-bar-container">
-            <input type="text" class="search-bar" id="search-keys" placeholder="Search Keys, Username or Devices..." oninput="renderKeys()">
-            <div class="filters-container" id="key-filters">
-                <button class="filter-pill active" data-filter="all" onclick="setKeyFilter('all')">All</button>
-                <button class="filter-pill" data-filter="active" onclick="setKeyFilter('active')">Active</button>
-                <button class="filter-pill" data-filter="pending" onclick="setKeyFilter('pending')">Pending</button>
-                <button class="filter-pill" data-filter="nearby" onclick="setKeyFilter('nearby')">Expiring</button>
-                <button class="filter-pill" data-filter="expired" onclick="setKeyFilter('expired')">Expired</button>
-                <button class="filter-pill" data-filter="banned" onclick="setKeyFilter('banned')">Banned</button>
-            </div>
-        </div>
-        <div id="keys-list"></div>
-        <button class="fab-btn" onclick="openKeyModal()"><i class="fas fa-plus"></i></button>
+    <div class="header-actions">
+      <button class="btn-icon" onclick="syncNow()"><i class="fas fa-sync-alt" id="reload-icon"></i></button>
+      <button class="btn-icon logout" onclick="logout()"><i class="fas fa-power-off"></i></button>
     </div>
+  </div>
 
-    <div id="view-bans" class="view">
-        <div class="search-bar-container">
-            <input type="text" class="search-bar" id="search-bans" placeholder="Search Banned HWID..." oninput="renderBans()">
-        </div>
-        <div id="bans-list"></div>
-        <button class="fab-btn" onclick="openBanModal()" style="background:linear-gradient(135deg,var(--danger),#b91c1c)"><i class="fas fa-ban"></i></button>
+  <!-- KEYS VIEW -->
+  <div id="view-keys" class="view active">
+    <div class="search-bar-container">
+      <input type="text" class="search-bar" id="search-keys" placeholder="Search keys..." oninput="renderKeys()">
+      <div class="filters-container" id="key-filters">
+        <button class="filter-pill active" data-filter="all" onclick="setKeyFilter('all')">All</button>
+        <button class="filter-pill" data-filter="active" onclick="setKeyFilter('active')">Active</button>
+        <button class="filter-pill" data-filter="pending" onclick="setKeyFilter('pending')">Pending</button>
+        <button class="filter-pill" data-filter="nearby" onclick="setKeyFilter('nearby')">Expiring</button>
+        <button class="filter-pill" data-filter="expired" onclick="setKeyFilter('expired')">Expired</button>
+        <button class="filter-pill" data-filter="banned" onclick="setKeyFilter('banned')">Banned</button>
+      </div>
     </div>
+    <div id="keys-list"></div>
+    <button class="fab-btn" onclick="openKeyModal()"><i class="fas fa-plus"></i></button>
+  </div>
 
-    <div id="view-operators" class="view">
-        <div class="search-bar-container">
-            <input type="text" class="search-bar" id="search-operators" placeholder="Search Operators..." oninput="renderOperators()">
-        </div>
-        <div id="operators-list"></div>
-        <button class="fab-btn" onclick="openOperatorModal()" style="background:linear-gradient(135deg,var(--accent),#7e22ce)"><i class="fas fa-user-plus"></i></button>
+  <!-- SYSTEM VIEW (admin only) -->
+  <div id="view-system" class="view">
+    <div class="input-wrapper-center" style="margin-top:20px">
+      <div class="info-card">
+        <b>Role:</b> <span id="info-role">-</span><br>
+        <b>Username:</b> <span id="info-username">-</span><br>
+        <b>Created:</b> <span id="info-created">-</span>
+      </div>
+      <button class="btn btn-primary" onclick="openChangePasswordModal()">
+        <i class="fas fa-key"></i> Change Password
+      </button>
     </div>
-
-    <div id="view-system" class="view">
-        <div class="input-wrapper-center" style="margin-top:20px">
-            <div style="margin-bottom:15px;color:var(--primary);font-weight:900;font-size:0.9rem;text-transform:uppercase;letter-spacing:1px"><i class="fas fa-user-circle"></i> Account Info</div>
-            <div class="info-card">
-                <b>Platform:</b> Anurag Online Official<br>
-                <b>Role:</b> <span id="info-role">-</span><br>
-                <b>Username:</b> <span id="info-username">-</span><br>
-                <b>Created:</b> <span id="info-created">-</span>
-            </div>
-
-            <button class="change-pass-btn" onclick="openChangePasswordModal()"><i class="fas fa-key"></i> Change Password</button>
-
-            <hr style="border:0;height:1px;background:var(--border-soft);margin:25px 0">
-
-            <div style="margin-bottom:15px;color:var(--primary);font-weight:900;font-size:0.9rem;text-transform:uppercase;letter-spacing:1px"><i class="fas fa-palette"></i> Panel Branding</div>
-            <div class="input-group"><label>Main Title</label><input type="text" id="as-title" placeholder="Anurag Online Official"></div>
-            <div class="input-group"><label>Sub Title</label><input type="text" id="as-subtitle"></div>
-            <div class="input-group"><label>Banner URL</label><input type="text" id="as-main-banner" placeholder="https://..."></div>
-            <div class="input-group"><label>Telegram Link</label><input type="text" id="as-admin-link"></div>
-
-            <hr style="border:0;height:1px;background:var(--border-soft);margin:25px 0">
-
-            <div style="margin-bottom:15px;color:var(--warning);font-weight:900;font-size:0.9rem;text-transform:uppercase;letter-spacing:1px"><i class="fas fa-exclamation-triangle"></i> Emergency</div>
-            
-            <div class="toggle-wrapper" id="tog-em-mode" onclick="toggleSwitch(this)">
-                <div style="font-size:0.85rem;font-weight:800"><i class="fas fa-siren-on" style="color:var(--danger);margin-right:8px"></i> Emergency Mode</div>
-                <div class="toggle-switch"></div>
-            </div>
-            <div class="toggle-wrapper" id="tog-em-cancel" onclick="toggleSwitch(this)">
-                <div style="font-size:0.85rem;font-weight:800"><i class="fas fa-times-circle" style="color:var(--text-dim);margin-right:8px"></i> Show Cancel</div>
-                <div class="toggle-switch"></div>
-            </div>
-            
-            <div class="input-group"><label>Alert Title</label><input type="text" id="as-em-title"></div>
-            <div class="input-group"><label>Alert Message</label><textarea id="as-em-msg" style="min-height:70px"></textarea></div>
-            <div class="input-group"><label>Alert Banner</label><input type="text" id="as-em-banner"></div>
-
-            <hr style="border:0;height:1px;background:var(--border-soft);margin:25px 0">
-
-            <div style="margin-bottom:15px;color:var(--primary);font-weight:900;font-size:0.9rem;text-transform:uppercase;letter-spacing:1px"><i class="fas fa-hourglass-start"></i> Global</div>
-            
-            <div class="toggle-wrapper" id="tog-trial" onclick="toggleSwitch(this)">
-                <div style="font-size:0.85rem;font-weight:800"><i class="fas fa-unlock" style="color:var(--primary);margin-right:8px"></i> Enable Free Trials</div>
-                <div class="toggle-switch"></div>
-            </div>
-
-            <button class="btn btn-primary" onclick="saveAppStatus()" style="margin-top:10px"><i class="fas fa-save"></i> Save Config</button>
-
-            <hr style="border:0;height:1px;background:var(--border-soft);margin:25px 0">
-
-            <div style="margin-bottom:15px;color:var(--primary);font-weight:900;font-size:0.9rem;text-transform:uppercase;letter-spacing:1px"><i class="fas fa-file-contract"></i> Policies</div>
-            
-            <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:20px">
-                <button class="btn" style="background:rgba(6,182,212,0.1);color:var(--primary);border:1px solid rgba(6,182,212,0.3);padding:14px;font-size:0.85rem" onclick="openPolicy('terms')"><i class="fas fa-file-contract"></i> Terms & Conditions</button>
-                <button class="btn" style="background:rgba(6,182,212,0.1);color:var(--primary);border:1px solid rgba(6,182,212,0.3);padding:14px;font-size:0.85rem" onclick="openPolicy('privacy')"><i class="fas fa-user-shield"></i> Privacy Policy</button>
-                <button class="btn" style="background:rgba(6,182,212,0.1);color:var(--primary);border:1px solid rgba(6,182,212,0.3);padding:14px;font-size:0.85rem" onclick="openPolicy('refund')"><i class="fas fa-undo"></i> Refund Policy</button>
-            </div>
-
-            <div class="db-info">Connected DB: <b id="db-url-display">-</b></div>
-
-            <div style="margin-top:25px;text-align:center">
-                <a href="https://t.me/AnuragOnlineOfficial" target="_blank" style="color:var(--primary);text-decoration:none;font-size:0.85rem;font-weight:800"><i class="fab fa-telegram"></i> @AnuragOnlineOfficial</a>
-            </div>
-        </div>
-    </div>
+  </div>
 </div>
 
 <!-- KEY MODAL -->
 <div class="modal-overlay" id="key-modal">
-    <div class="modal-card">
-        <div class="modal-handle"></div>
-        <div class="modal-title" id="modal-key-title">Generate Key</div>
-        
-        <div class="input-group">
-            <label>Access Key</label>
-            <div style="display:flex;gap:10px">
-                <input type="text" id="mod-key-id" placeholder="AO-IND-1" style="font-family:var(--font-code)" readonly>
-                <button class="btn" style="width:55px;background:var(--bg-input);padding:0;border:1px solid var(--border-soft)" onclick="randomKey()"><i class="fas fa-dice" style="color:var(--primary)"></i></button>
-            </div>
-        </div>
+  <div class="modal-card">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="modal-key-title">Generate Key</div>
 
-        <div class="input-group"><label>Username / Client Name</label><input type="text" id="mod-key-username" placeholder="John Doe"></div>
-
-        <div class="input-group"><label>Device Limit</label><input type="number" id="mod-key-limit" value="1" min="1"></div>
-
-        <div class="input-group">
-            <label>Package (Fixed Price — No Edit)</label>
-            <div class="quick-days">
-                <button type="button" class="day-btn" data-days="7" onclick="setDays(7,this)">7 Days<span class="price-tag">₹2100</span></button>
-                <button type="button" class="day-btn" data-days="14" onclick="setDays(14,this)">14 Days<span class="price-tag">₹4200</span></button>
-                <button type="button" class="day-btn" data-days="21" onclick="setDays(21,this)">21 Days<span class="price-tag">₹6300</span></button>
-                <button type="button" class="day-btn" data-days="28" onclick="setDays(28,this)">28 Days<span class="price-tag">₹8400</span></button>
-                <button type="button" class="day-btn" data-days="35" onclick="setDays(35,this)">35 Days<span class="price-tag">₹10500</span></button>
-                <button type="button" class="day-btn" data-days="42" onclick="setDays(42,this)">42 Days<span class="price-tag">₹12600</span></button>
-                <button type="button" class="day-btn" data-days="49" onclick="setDays(49,this)">49 Days<span class="price-tag">₹14700</span></button>
-            </div>
-            <div class="expiry-preview"><i class="fas fa-calendar-check"></i> <span id="expiry-preview-text">Select a package</span></div>
-        </div>
-
-        <div style="background:rgba(239,68,68,0.08);border:2px solid rgba(239,68,68,0.35);border-radius:14px;padding:14px 16px;margin-top:14px;display:flex;align-items:flex-start;gap:12px;animation:warningPulse 2s ease-in-out infinite">
-            <i class="fas fa-exclamation-triangle" style="color:var(--danger);font-size:1.3rem;margin-top:2px;flex-shrink:0"></i>
-            <div style="text-align:left">
-                <div style="color:var(--danger);font-weight:900;font-size:0.85rem;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">⚠️ Non-Refundable Fees</div>
-                <div style="color:var(--text-dim);font-size:0.75rem;font-weight:600;line-height:1.5">
-                    Jo bhi fees hai wo <b style="color:var(--danger)">Non-Refundable</b> hai. Payment ke baad refund nahi milega.
-                </div>
-            </div>
-        </div>
-
-        <div class="input-group locked-price" style="margin-top:14px">
-            <label>Amount (Locked — Server Verified)</label>
-            <input type="text" id="mod-key-amount" readonly placeholder="Auto-calculated">
-        </div>
-
-        <div class="input-group"><label>Expiry Date</label><input type="date" id="mod-key-date" readonly style="opacity:0.7"></div>
-
-        <div style="margin-top:15px;display:flex;justify-content:center">
-            <div class="interactive-text" style="color:var(--text-dim);font-size:0.75rem;font-weight:800;text-transform:uppercase;padding:10px 18px;background:rgba(255,255,255,0.05);border-radius:12px;border:1px solid var(--border-soft)" onclick="toggleAdvancedMode()">
-                Advanced Remarks <i class="fas fa-chevron-down" id="adv-chevron" style="transition:transform 0.3s;margin-left:5px"></i>
-            </div>
-        </div>
-
-        <div id="advanced-section" style="display:none;margin-top:15px;border-top:1px dashed rgba(255,255,255,0.1);padding-top:15px">
-            <div class="input-group"><label>Payment (Local)</label><input type="text" id="mod-key-payment" placeholder="₹500"></div>
-        </div>
-
-        <div id="admin-key-actions" style="display:none">
-            <button class="btn" style="background:linear-gradient(135deg,var(--accent),#7e22ce);margin-bottom:12px;box-shadow:0 8px 25px var(--accent-shine)" onclick="saveKeyDirectly()">
-                <i class="fas fa-crown"></i> Generate Key (Admin Free)
-            </button>
-            
-            <div id="admin-fee-summary" style="background:linear-gradient(135deg,rgba(16,185,129,0.12),rgba(6,182,212,0.12));border:2px solid rgba(16,185,129,0.4);border-radius:14px;padding:16px;margin-bottom:14px;display:none">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-                    <span style="color:var(--text-dim);font-size:0.75rem;font-weight:800;text-transform:uppercase;letter-spacing:1px"><i class="fas fa-receipt"></i> Payment Summary</span>
-                    <span class="badge active" style="font-size:0.6rem"><i class="fas fa-lock"></i> FIXED</span>
-                </div>
-                <div style="display:flex;justify-content:space-between;padding:12px 0 4px 0;align-items:center">
-                    <span style="color:var(--text-dim);font-size:0.8rem;font-weight:800;text-transform:uppercase">Total Payable:</span>
-                    <span id="admin-fee-amount" style="color:var(--success);font-weight:900;font-size:1.3rem;text-shadow:0 0 15px var(--success-shine)">₹0</span>
-                </div>
-                <div style="margin-top:8px;padding:8px;background:rgba(239,68,68,0.1);border-radius:8px;text-align:center;font-size:0.7rem;color:var(--danger);font-weight:800">
-                    <i class="fas fa-ban"></i> NON-REFUNDABLE
-                </div>
-            </div>
-
-            <button class="payment-link-btn" id="payment-btn-admin" onclick="openPaymentModal()" disabled>
-                <i class="fas fa-credit-card"></i> Pay with Cashfree
-            </button>
-        </div>
-
-        <div id="operator-key-actions">
-            <div id="op-fee-summary" style="background:linear-gradient(135deg,rgba(16,185,129,0.12),rgba(6,182,212,0.12));border:2px solid rgba(16,185,129,0.4);border-radius:14px;padding:16px;margin-bottom:14px;display:none">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-                    <span style="color:var(--text-dim);font-size:0.75rem;font-weight:800;text-transform:uppercase;letter-spacing:1px"><i class="fas fa-receipt"></i> Payment Summary</span>
-                    <span class="badge active" style="font-size:0.6rem"><i class="fas fa-lock"></i> FIXED</span>
-                </div>
-                <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px dashed rgba(255,255,255,0.1)">
-                    <span style="color:var(--text-dim);font-size:0.8rem;font-weight:700">Package:</span>
-                    <span id="op-fee-package" style="color:#fff;font-weight:800;font-size:0.85rem">-</span>
-                </div>
-                <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px dashed rgba(255,255,255,0.1)">
-                    <span style="color:var(--text-dim);font-size:0.8rem;font-weight:700">Devices:</span>
-                    <span id="op-fee-devices" style="color:#fff;font-weight:800;font-size:0.85rem">-</span>
-                </div>
-                <div style="display:flex;justify-content:space-between;padding:12px 0 4px 0;align-items:center">
-                    <span style="color:var(--text-dim);font-size:0.8rem;font-weight:800;text-transform:uppercase">Total Payable:</span>
-                    <span id="op-fee-amount" style="color:var(--success);font-weight:900;font-size:1.3rem;text-shadow:0 0 15px var(--success-shine)">₹0</span>
-                </div>
-                <div style="margin-top:8px;padding:8px;background:rgba(239,68,68,0.1);border-radius:8px;text-align:center;font-size:0.7rem;color:var(--danger);font-weight:800">
-                    <i class="fas fa-ban"></i> NON-REFUNDABLE
-                </div>
-            </div>
-
-            <button class="payment-link-btn" id="payment-btn-op" onclick="openPaymentModal()" disabled>
-                <i class="fas fa-credit-card"></i> Pay Now
-            </button>
-        </div>
-
-        <div style="margin-top:15px">
-            <button class="btn" style="background:rgba(255,255,255,0.1)" onclick="closeModals()">Cancel</button>
-        </div>
+    <div class="input-group">
+      <label>Access Key</label>
+      <div style="display:flex;gap:10px">
+        <input type="text" id="mod-key-id" placeholder="AO-IND-1" style="font-family:var(--font-code)" readonly>
+        <button class="btn" style="width:55px;background:var(--bg-input);padding:0;border:1px solid var(--border-soft)" onclick="randomKey()">
+          <i class="fas fa-dice" style="color:var(--primary)"></i>
+        </button>
+      </div>
     </div>
-</div>
 
-<!-- BAN MODAL -->
-<div class="modal-overlay" id="ban-modal">
-    <div class="modal-card">
-        <div class="modal-handle"></div>
-        <div class="modal-title" style="color:var(--danger)">Block Hardware</div>
-        <div class="input-group"><label>HWID to Ban</label><input type="text" id="mod-ban-id" style="font-family:var(--font-code)"></div>
-        <div style="display:flex;gap:12px;margin-top:25px">
-            <button class="btn" style="background:rgba(255,255,255,0.1)" onclick="closeModals()">Cancel</button>
-            <button class="btn" style="background:linear-gradient(135deg,var(--danger),#b91c1c)" onclick="saveBan()">Ban</button>
-        </div>
+    <div class="input-group">
+      <label>Username / Client Name</label>
+      <input type="text" id="mod-key-name" placeholder="John Doe">
     </div>
-</div>
 
-<!-- EDIT HWID MODAL -->
-<div class="modal-overlay" id="edit-hwid-modal">
-    <div class="modal-card">
-        <div class="modal-handle"></div>
-        <div class="modal-title" style="color:var(--primary)">Edit Device ID</div>
-        <div class="input-group">
-            <label>Hardware ID</label>
-            <input type="text" id="mod-edit-hwid" style="font-family:var(--font-code)">
-            <input type="hidden" id="mod-edit-old-hwid">
-            <input type="hidden" id="mod-edit-key-id">
-        </div>
-        <div style="display:flex;gap:12px;margin-top:25px">
-            <button class="btn" style="background:rgba(255,255,255,0.1)" onclick="closeModals()">Cancel</button>
-            <button class="btn btn-primary" onclick="saveEditedHWID()">Update</button>
-        </div>
+    <div class="input-group">
+      <label>Device Limit</label>
+      <input type="number" id="mod-key-limit" value="1" min="1">
     </div>
-</div>
 
-<!-- OPERATOR MODAL -->
-<div class="modal-overlay" id="operator-modal">
-    <div class="modal-card">
-        <div class="modal-handle"></div>
-        <div class="modal-title" id="modal-operator-title" style="color:var(--accent)">Create Operator</div>
-        <div class="input-group"><label>Operator ID</label><input type="text" id="mod-op-username" style="font-family:var(--font-code)"></div>
-        <div class="input-group"><label>Password</label><input type="text" id="mod-op-password" style="font-family:var(--font-code)"></div>
-        <div class="input-group"><label>Display Name</label><input type="text" id="mod-op-name"></div>
-        <div class="input-group"><label>Notes</label><textarea id="mod-op-notes" style="min-height:60px"></textarea></div>
-        <div style="display:flex;gap:12px;margin-top:25px">
-            <button class="btn" style="background:rgba(255,255,255,0.1)" onclick="closeModals()">Cancel</button>
-            <button class="btn" style="background:linear-gradient(135deg,var(--accent),#7e22ce)" onclick="saveOperator()"><span id="modal-operator-btn-text">Create</span></button>
-        </div>
+    <div class="input-group">
+      <label>Package (Fixed Price)</label>
+      <div class="quick-days">
+        <button type="button" class="day-btn" data-days="7" onclick="setDays(7,this)">7 Days<span class="price-tag">₹2100</span></button>
+        <button type="button" class="day-btn" data-days="14" onclick="setDays(14,this)">14 Days<span class="price-tag">₹4200</span></button>
+        <button type="button" class="day-btn" data-days="21" onclick="setDays(21,this)">21 Days<span class="price-tag">₹6300</span></button>
+        <button type="button" class="day-btn" data-days="28" onclick="setDays(28,this)">28 Days<span class="price-tag">₹8400</span></button>
+        <button type="button" class="day-btn" data-days="35" onclick="setDays(35,this)">35 Days<span class="price-tag">₹10500</span></button>
+        <button type="button" class="day-btn" data-days="42" onclick="setDays(42,this)">42 Days<span class="price-tag">₹12600</span></button>
+        <button type="button" class="day-btn" data-days="49" onclick="setDays(49,this)">49 Days<span class="price-tag">₹14700</span></button>
+      </div>
+      <div class="expiry-preview">
+        <i class="fas fa-calendar-check"></i>
+        <span id="expiry-preview-text">Select a package</span>
+      </div>
     </div>
+
+    <div class="warning-box">
+      <i class="fas fa-exclamation-triangle"></i>
+      <div>
+        <div class="warning-title">⚠️ Non-Refundable Fees</div>
+        <div class="warning-text">Jo bhi fees hai wo <b>Non-Refundable</b> hai.</div>
+      </div>
+    </div>
+
+    <div class="input-group locked-price">
+      <label>Amount (Server Verified)</label>
+      <input type="text" id="mod-key-amount" readonly>
+    </div>
+
+    <div class="input-group">
+      <label>Expiry Date</label>
+      <input type="date" id="mod-key-date" readonly style="opacity:0.7">
+    </div>
+
+    <button class="payment-link-btn" id="payment-btn" onclick="openPaymentModal()" disabled>
+      <i class="fas fa-credit-card"></i> Pay with Cashfree
+    </button>
+
+    <button class="btn" style="background:rgba(255,255,255,0.1);margin-top:15px" onclick="closeModals()">
+      Cancel
+    </button>
+  </div>
 </div>
 
 <!-- CHANGE PASSWORD MODAL -->
 <div class="modal-overlay" id="change-password-modal">
-    <div class="modal-card">
-        <div class="modal-handle"></div>
-        <div class="modal-title" style="color:var(--warning)">Change Password</div>
-        <div class="input-group"><label>Current Password</label><input type="password" id="mod-current-pass"></div>
-        <div class="input-group"><label>New Password</label><input type="password" id="mod-new-pass"></div>
-        <div class="input-group"><label>Confirm New Password</label><input type="password" id="mod-confirm-pass"></div>
-        <div style="display:flex;gap:12px;margin-top:25px">
-            <button class="btn" style="background:rgba(255,255,255,0.1)" onclick="closeModals()">Cancel</button>
-            <button class="btn" style="background:linear-gradient(135deg,var(--warning),#d97706)" onclick="saveNewPassword()">Update</button>
-        </div>
+  <div class="modal-card">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Change Password</div>
+    <div class="input-group"><label>Current Password</label><input type="password" id="mod-current-pass"></div>
+    <div class="input-group"><label>New Password</label><input type="password" id="mod-new-pass"></div>
+    <div class="input-group"><label>Confirm New Password</label><input type="password" id="mod-confirm-pass"></div>
+    <div style="display:flex;gap:12px;margin-top:25px">
+      <button class="btn" style="background:rgba(255,255,255,0.1)" onclick="closeModals()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveNewPassword()">Update</button>
     </div>
+  </div>
 </div>
 
-<!-- PAYMENT INSTRUCTION MODAL -->
-<div class="modal-overlay" id="payment-instruction-modal" style="align-items:center;z-index:9999">
-    <div class="modal-card" style="border-radius:24px;max-width:420px;margin:auto">
-        <div class="modal-handle"></div>
-        <div style="text-align:center;margin-bottom:20px">
-            <div style="background:linear-gradient(135deg,rgba(16,185,129,0.3),rgba(6,182,212,0.3));width:70px;height:70px;border-radius:20px;display:flex;align-items:center;justify-content:center;margin:0 auto 15px;animation:pulseGlow 1.5s ease-in-out infinite">
-                <i class="fas fa-check-circle" style="color:var(--success);font-size:2rem"></i>
-            </div>
-            <div style="font-weight:900;font-size:1.2rem;text-transform:uppercase;letter-spacing:1px">Payment Successful!</div>
-            <div style="font-size:0.75rem;color:var(--text-dim);font-weight:700;margin-top:6px">Admin approval ka wait karein</div>
-        </div>
-        
-        <div style="background:rgba(6,182,212,0.05);border:1px solid rgba(6,182,212,0.2);border-radius:14px;padding:16px;text-align:left;font-size:0.8rem;color:var(--text-dim);line-height:1.7">
-            <b style="color:var(--primary)">Next Steps:</b><br>
-            1. Payment successfully received ✅<br>
-            2. Admin ko notification bhej di gayi hai<br>
-            3. Admin approve karega to key auto-generate hogi<br>
-            4. Aap Keys tab me status dekh sakte hain
-        </div>
-
-        <button class="btn btn-primary" style="margin-top:20px" onclick="closePaymentModal()">Got It!</button>
+<!-- PAYMENT SUCCESS MODAL -->
+<div class="modal-overlay" id="payment-success-modal">
+  <div class="modal-card success-card">
+    <div class="success-icon">
+      <i class="fas fa-check-circle"></i>
     </div>
+    <div class="success-title">Payment Successful!</div>
+    <div class="success-text">
+      Aapki payment receive ho gayi hai. Key <b>automatically generate</b> ho rahi hai — panel refresh karein 10-15 seconds me.
+    </div>
+    <button class="btn btn-primary" style="margin-top:20px" onclick="closeModals();syncNow()">
+      Got It!
+    </button>
+  </div>
 </div>
 
-<!-- CHANGELOG MODAL (Simplified — no Firebase / Cashfree mention) -->
-<div class="modal-overlay" id="changelog-modal" style="align-items:center;z-index:9999">
-    <div class="modal-card" style="border-radius:24px;max-width:420px;margin:auto">
-        <div class="modal-handle"></div>
-        <div style="text-align:center;margin-bottom:20px">
-            <div style="background:linear-gradient(135deg,rgba(6,182,212,0.3),rgba(168,85,247,0.3));width:60px;height:60px;border-radius:18px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px">
-                <i class="fas fa-rocket" style="color:var(--primary);font-size:1.6rem"></i>
-            </div>
-            <div style="font-weight:900;font-size:1.2rem;text-transform:uppercase;letter-spacing:1px">Welcome!</div>
-            <div style="font-size:0.75rem;color:var(--text-dim);font-weight:700;margin-top:4px">Anurag Online Official</div>
-        </div>
-        <div style="display:flex;flex-direction:column;gap:10px">
-            <div style="display:flex;align-items:flex-start;gap:12px;background:rgba(255,255,255,0.03);padding:12px;border-radius:12px">
-                <i class="fas fa-key" style="color:var(--primary);margin-top:3px"></i>
-                <div>
-                    <div style="font-size:0.82rem;font-weight:800">Access Key Manager</div>
-                    <div style="font-size:0.7rem;color:var(--text-dim);margin-top:2px">Keys generate, edit aur manage karein.</div>
-                </div>
-            </div>
-            <div style="display:flex;align-items:flex-start;gap:12px;background:rgba(255,255,255,0.03);padding:12px;border-radius:12px">
-                <i class="fas fa-lock" style="color:var(--success);margin-top:3px"></i>
-                <div>
-                    <div style="font-size:0.82rem;font-weight:800">Fixed Prices</div>
-                    <div style="font-size:0.7rem;color:var(--text-dim);margin-top:2px">Prices locked, fees non-refundable.</div>
-                </div>
-            </div>
-            <div style="display:flex;align-items:flex-start;gap:12px;background:rgba(255,255,255,0.03);padding:12px;border-radius:12px">
-                <i class="fas fa-shield-halved" style="color:var(--accent);margin-top:3px"></i>
-                <div>
-                    <div style="font-size:0.82rem;font-weight:800">Secure Access</div>
-                    <div style="font-size:0.7rem;color:var(--text-dim);margin-top:2px">Authorized users only.</div>
-                </div>
-            </div>
-        </div>
-        <button class="btn btn-primary" style="margin-top:20px" onclick="closeChangelog()">Let's Go!</button>
-    </div>
-</div>
-
-<!-- POLICY: TERMS -->
-<div class="policy-page" id="policy-terms">
-    <div class="policy-header">
-        <button class="policy-back-btn" onclick="closePolicy()"><i class="fas fa-arrow-left"></i></button>
-        <div class="policy-header-text"><h1>Terms & Conditions</h1><p>Anurag Online Official</p></div>
-    </div>
-    <div class="policy-content">
-        <div class="policy-meta"><span><i class="fas fa-calendar"></i> Effective: 01 Jan 2025</span></div>
-        <h2><i class="fas fa-handshake"></i> 1. Acceptance of Terms</h2>
-        <p>By accessing or using <strong>Anurag Online Official</strong> ("the Service"), you agree to be bound by these Terms & Conditions.</p>
-        <h2><i class="fas fa-info-circle"></i> 2. Description of Service</h2>
-        <p>Anurag Online Official provides digital access key management, online payment processing, and related services.</p>
-        <h2><i class="fas fa-user-check"></i> 3. User Responsibilities</h2>
-        <ul>
-            <li>Provide accurate information during registration</li>
-            <li>Maintain the confidentiality of your login credentials</li>
-            <li>Not share your account with any third party</li>
-            <li>Not use the Service for any illegal purpose</li>
-        </ul>
-        <h2><i class="fas fa-credit-card"></i> 4. Payments & Fees</h2>
-        <p>All payments are processed securely through <strong>Cashfree Payment Gateway</strong>. <strong>All fees are NON-REFUNDABLE.</strong></p>
-        <h2><i class="fas fa-ban"></i> 5. Prohibited Activities</h2>
-        <p>You may NOT use the Service for fraudulent purposes, distribute access without permission, or bypass security measures.</p>
-        <h2><i class="fas fa-gavel"></i> 6. Governing Law</h2>
-        <p>These terms are governed by the laws of India.</p>
-        <div class="policy-contact-box">
-            <b>Contact:</b><br>
-            📧 <a href="mailto:support@anuragonlineofficial.com">support@anuragonlineofficial.com</a><br>
-            📱 Telegram: <a href="https://t.me/AnuragOnlineOfficial" target="_blank">@AnuragOnlineOfficial</a>
-        </div>
-    </div>
-</div>
-
-<!-- POLICY: PRIVACY -->
-<div class="policy-page" id="policy-privacy">
-    <div class="policy-header">
-        <button class="policy-back-btn" onclick="closePolicy()"><i class="fas fa-arrow-left"></i></button>
-        <div class="policy-header-text"><h1>Privacy Policy</h1><p>Anurag Online Official</p></div>
-    </div>
-    <div class="policy-content">
-        <div class="policy-meta"><span><i class="fas fa-lock"></i> GDPR Compliant</span></div>
-        <h2><i class="fas fa-info-circle"></i> 1. Introduction</h2>
-        <p>Anurag Online Official respects your privacy.</p>
-        <h2><i class="fas fa-database"></i> 2. Information We Collect</h2>
-        <ul>
-            <li><strong>Personal Info:</strong> Name, email, phone number</li>
-            <li><strong>Payment Info:</strong> Transaction IDs (handled by Cashfree)</li>
-            <li><strong>Device Info:</strong> Hardware ID, browser type, IP address</li>
-        </ul>
-        <h2><i class="fas fa-share-alt"></i> 3. Information Sharing</h2>
-        <p>We do NOT sell your data. We share info with Cashfree (payments) and Firebase (storage) only.</p>
-        <div class="policy-contact-box">
-            <b>Data Protection Officer:</b><br>
-            📧 <a href="mailto:privacy@anuragonlineofficial.com">privacy@anuragonlineofficial.com</a>
-        </div>
-    </div>
-</div>
-
-<!-- POLICY: REFUND -->
-<div class="policy-page" id="policy-refund">
-    <div class="policy-header">
-        <button class="policy-back-btn" onclick="closePolicy()"><i class="fas fa-arrow-left"></i></button>
-        <div class="policy-header-text"><h1>Refund Policy</h1><p>Anurag Online Official</p></div>
-    </div>
-    <div class="policy-content">
-        <div class="policy-meta"><span><i class="fas fa-ban"></i> Non-Refundable</span></div>
-        <h2><i class="fas fa-exclamation-triangle" style="color:var(--danger)"></i> All Fees Are NON-REFUNDABLE</h2>
-        <p><strong style="color:var(--danger)">Important:</strong> All fees paid for our services are <strong>strictly NON-REFUNDABLE</strong>. Once a payment is made, it cannot be reversed, refunded, or cancelled.</p>
-        <h2><i class="fas fa-times-circle"></i> NOT Eligible for Refund</h2>
-        <ul>
-            <li>Key already generated (whether used or not)</li>
-            <li>Changed mind after purchase</li>
-            <li>Violated Terms & Conditions</li>
-            <li>Unable to use the service due to user-side issues</li>
-            <li>Any other reason</li>
-        </ul>
-        <h2><i class="fas fa-info-circle"></i> Why Non-Refundable?</h2>
-        <p>Our digital access keys are generated instantly upon payment. Once generated, the service has been delivered and cannot be reversed.</p>
-        <h2><i class="fas fa-handshake"></i> Acknowledgment</h2>
-        <p>By completing a payment on this platform, you acknowledge and agree that you have read, understood, and accepted our <strong>NON-REFUNDABLE</strong> policy.</p>
-        <div class="policy-contact-box">
-            <b>Questions?</b><br>
-            📧 <a href="mailto:support@anuragonlineofficial.com">support@anuragonlineofficial.com</a><br>
-            📱 Telegram: <a href="https://t.me/AnuragOnlineOfficial" target="_blank">@AnuragOnlineOfficial</a>
-        </div>
-    </div>
-</div>
-
-<!-- BOTTOM NAV -->
-<div class="bottom-nav" id="bottom-nav" style="display:none">
-    <div class="nav-item active" onclick="nav('keys',this,'Keys','Manage Access')"><i class="fas fa-key"></i><span>Keys</span></div>
-    <div class="nav-item admin-only" id="nav-bans" style="display:none" onclick="nav('bans',this,'Bans','Hardware Blocks')"><i class="fas fa-user-slash"></i><span>Bans</span></div>
-    <div class="nav-item admin-only admin-nav" id="nav-operators" style="display:none" onclick="nav('operators',this,'Operators','Team')"><i class="fas fa-users-cog"></i><span>Team</span></div>
-    <div class="nav-item admin-only" id="nav-system" style="display:none" onclick="nav('system',this,'System','Config')"><i class="fas fa-cogs"></i><span>System</span></div>
-</div>
-
-<script>
-// ============================================================
-// ANURAG ONLINE OFFICIAL — MERGED FRONTEND
-// Firebase Backend + DPMods_Security Schema + Admin/Operator
-// ============================================================
-
-// ---------- HARDCODED CONFIG (not shown in UI) ----------
-const FIREBASE_URL = 'https://anurag-online-official-default-rtdb.asia-southeast1.firebasedatabase.app';
-
-// Admin credentials — obfuscated at rest (Base64)
-// admin: ahardoi30@gmail.com  |  password: demo
-const _A_USER = atob('YWhhcmRvaTMwQGdtYWlsLmNvbQ==');
-const _A_PASS = atob('ZGVtbw==');
-
-// ---------- GLOBAL STATE ----------
-let currentUser = null;
-let DB = { DPMods_Security: { App_Status: {}, Keys: {}, Operators: {}, Bans: {} } };
-let keyFilter = 'all';
-let selectedDays = null;
-let currentEditKey = null;
-let currentEditOperator = null;
-
-// ---------- HELPERS ----------
-const $ = id => document.getElementById(id);
-const qsa = (sel, p=document) => [...p.querySelectorAll(sel)];
-
-function showToast(msg, icon='fa-check-circle', color='var(--primary)') {
-    const island = $('dynamic-island');
-    $('di-msg').textContent = msg;
-    $('di-icon').className = `fas ${icon}`;
-    $('di-icon').style.color = color;
-    island.classList.add('show');
-    clearTimeout(window._toastTimer);
-    window._toastTimer = setTimeout(() => island.classList.remove('show'), 2500);
-}
-
-function closeModals() { qsa('.modal-overlay').forEach(m => m.classList.remove('active')); }
-
-function toggleAdvancedMode() {
-    const adv = $('advanced-section');
-    const chev = $('adv-chevron');
-    if (adv.style.display === 'none' || !adv.style.display) {
-        adv.style.display = 'block'; chev.style.transform = 'rotate(180deg)';
-    } else {
-        adv.style.display = 'none'; chev.style.transform = 'rotate(0deg)';
-    }
-}
-
-function toggleSwitch(el) { el.classList.toggle('active'); }
-
-// ---------- COPY KEY TO CLIPBOARD ----------
-function copyKeyToClipboard(keyId) {
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(keyId).then(() => {
-            showToast('Key copied: ' + keyId, 'fa-copy', 'var(--primary)');
-        }).catch(() => fallbackCopy(keyId));
-    } else {
-        fallbackCopy(keyId);
-    }
-}
-
-function fallbackCopy(text) {
-    const textarea = document.createElement('textarea');
-    textarea.value = text;
-    textarea.style.position = 'fixed';
-    textarea.style.opacity = '0';
-    document.body.appendChild(textarea);
-    textarea.select();
-    try {
-        document.execCommand('copy');
-        showToast('Key copied: ' + text, 'fa-copy', 'var(--primary)');
-    } catch(e) {
-        showToast('Copy failed', 'fa-times-circle', 'var(--danger)');
-    }
-    document.body.removeChild(textarea);
-}
-
-// ---------- RANDOM KEY GENERATOR (AO-IND-XXXXX format) ----------
-function randomKey() {
-    const keys = Object.keys(DB.DPMods_Security.Keys || {});
-    let maxNum = 0;
-    keys.forEach(k => {
-        const match = k.match(/^AO-IND-(\d+)$/);
-        if (match) {
-            const num = parseInt(match[1]);
-            if (num > maxNum) maxNum = num;
-        }
-    });
-    const nextNum = maxNum + 1;
-    $('mod-key-id').value = 'AO-IND-' + nextNum;
-}
-
-function setDays(days, btn) {
-    selectedDays = days;
-    qsa('.day-btn').forEach(b => b.classList.remove('selected'));
-    btn.classList.add('selected');
-    const price = days * 300;
-    $('mod-key-amount').value = '₹' + price.toLocaleString('en-IN');
-    const exp = new Date();
-    exp.setDate(exp.getDate() + days);
-    $('expiry-preview-text').textContent = `Expires on ${exp.toLocaleDateString('en-IN', {day:'numeric',month:'short',year:'numeric'})}`;
-    $('mod-key-date').value = exp.toISOString().split('T')[0];
-
-    if (currentUser && currentUser.role === 'admin') {
-        $('admin-fee-summary').style.display = 'block';
-        $('admin-fee-amount').textContent = '₹' + price.toLocaleString('en-IN');
-        $('payment-btn-admin').disabled = false;
-    } else {
-        $('op-fee-summary').style.display = 'block';
-        $('op-fee-package').textContent = days + ' Days';
-        $('op-fee-devices').textContent = $('mod-key-limit').value || 1;
-        $('op-fee-amount').textContent = '₹' + price.toLocaleString('en-IN');
-        $('payment-btn-op').disabled = false;
-    }
-}
-
-// ---------- FIREBASE ----------
-async function fetchFirebase() {
-    const res = await fetch(`${FIREBASE_URL}/DPMods_Security.json`);
-    if (!res.ok) throw new Error('Connection failed');
-    const data = await res.json();
-    if (data) {
-        DB.DPMods_Security = data;
-    } else {
-        DB.DPMods_Security = { App_Status: {}, Keys: {}, Operators: {}, Bans: {} };
-        await pushFirebase();
-    }
-    ['App_Status','Keys','Operators','Bans'].forEach(k => {
-        if (!DB.DPMods_Security[k]) DB.DPMods_Security[k] = {};
-    });
-}
-
-async function pushFirebase(silent=false) {
-    try {
-        const res = await fetch(`${FIREBASE_URL}/DPMods_Security.json`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(DB.DPMods_Security)
-        });
-        if (!res.ok) throw new Error('Push failed');
-    } catch(e) {
-        if (!silent) showToast('Sync error', 'fa-exclamation-triangle', 'var(--danger)');
-    }
-}
-
-// ---------- LOGIN ----------
-async function doLogin() {
-    const u = $('login-username').value.trim();
-    const p = $('login-password').value.trim();
-
-    if (!u || !p) return showToast('Fill all fields', 'fa-exclamation-triangle', 'var(--warning)');
-
-    const btn = $('login-btn');
-    btn.disabled = true;
-    $('login-btn-text').textContent = 'CONNECTING...';
-
-    try {
-        await fetchFirebase();
-
-        // Admin check (hardcoded credentials)
-        if (u === _A_USER && p === _A_PASS) {
-            currentUser = { username: 'admin', role: 'admin', name: 'Admin', created: '2025-01-01', password: p };
-            enterApp();
-            return;
-        }
-        // Operator check (from Firebase)
-        const ops = DB.DPMods_Security.Operators || {};
-        const op = ops[u];
-        if (op && op.password === p) {
-            currentUser = { username: u, role: 'operator', name: op.name || u, created: op.created || '2025-01-01', password: op.password };
-            enterApp();
-            return;
-        }
-        showToast('Invalid credentials', 'fa-times-circle', 'var(--danger)');
-    } catch(e) {
-        showToast('Connection failed', 'fa-exclamation-triangle', 'var(--danger)');
-    } finally {
-        btn.disabled = false;
-        $('login-btn-text').textContent = 'LOGIN';
-    }
-}
-
-function enterApp() {
-    $('login-screen').style.display = 'none';
-    $('main-app').style.display = 'flex';
-    $('bottom-nav').style.display = 'flex';
-    const badge = $('user-badge');
-    badge.textContent = currentUser.role.toUpperCase();
-    badge.className = `user-badge ${currentUser.role}`;
-    qsa('.admin-only').forEach(el => el.style.display = currentUser.role === 'admin' ? 'flex' : 'none');
-    $('info-role').textContent = currentUser.role;
-    $('info-username').textContent = currentUser.username;
-    $('info-created').textContent = currentUser.created;
-    $('db-url-display').textContent = 'Firebase Realtime DB';
-    refreshAll();
-    setTimeout(() => $('changelog-modal').classList.add('active'), 600);
-}
-
-function logout() {
-    currentUser = null;
-    $('login-screen').style.display = 'flex';
-    $('main-app').style.display = 'none';
-    $('bottom-nav').style.display = 'none';
-    $('login-username').value = '';
-    $('login-password').value = '';
-    showToast('Logged out', 'fa-power-off', 'var(--danger)');
-}
-
-function closeChangelog() { $('changelog-modal').classList.remove('active'); }
-
-// ---------- SYNC ----------
-async function syncDB() {
-    const icon = $('reload-icon');
-    icon.classList.add('spin');
-    try {
-        await fetchFirebase();
-        refreshAll();
-        showToast('Synced', 'fa-check-circle', 'var(--success)');
-    } catch(e) {
-        showToast('Sync failed', 'fa-exclamation-triangle', 'var(--danger)');
-    } finally {
-        setTimeout(() => icon.classList.remove('spin'), 500);
-    }
-}
-
-function refreshAll() {
-    renderKeys();
-    renderBans();
-    renderOperators();
-    populateConfig();
-}
-
-// ---------- KEY HELPERS ----------
-function getKeyData(keyId) {
-    return DB.DPMods_Security.Keys[keyId] || null;
-}
-
-function getDevices(keyId) {
-    const k = getKeyData(keyId);
-    if (!k || !k.Devices) return [];
-    return Object.keys(k.Devices).filter(h => h !== 'dummy');
-}
-
-function isKeyBanned(keyId) {
-    const k = getKeyData(keyId);
-    return k && k.Banned === true;
-}
-
-function isKeyExpired(keyId) {
-    const k = getKeyData(keyId);
-    if (!k || !k.ExpiryDate) return false;
-    const parts = k.ExpiryDate.split('-');
-    if (parts.length !== 3) return false;
-    const exp = new Date(parseInt(parts[0]), parseInt(parts[1])-1, parseInt(parts[2]));
-    exp.setHours(23,59,59,999);
-    return exp < new Date();
-}
-
-function isKeyPending(keyId) {
-    const k = getKeyData(keyId);
-    return k && k.Pending === true;
-}
-
-// ---------- OWNERSHIP FILTER ----------
-// Operator sees ONLY keys they created. Admin sees everything.
-function canSeeKey(keyId) {
-    if (currentUser.role === 'admin') return true;
-    const k = getKeyData(keyId);
-    if (!k) return false;
-    return k.Owner === currentUser.username;
-}
-
-// ---------- RENDER: KEYS ----------
-function setKeyFilter(f) {
-    keyFilter = f;
-    qsa('#key-filters .filter-pill').forEach(b => b.classList.toggle('active', b.dataset.filter === f));
-    renderKeys();
-}
-
-function renderKeys() {
-    const container = $('keys-list');
-    const search = ($('search-keys')?.value || '').toLowerCase();
-    const keysObj = DB.DPMods_Security.Keys || {};
-
-    let filtered = Object.keys(keysObj).filter(keyId => {
-        // Ownership restriction: operator sees only own keys
-        if (!canSeeKey(keyId)) return false;
-
-        const k = keysObj[keyId];
-        const username = (k.Username || '').toLowerCase();
-        const devices = getDevices(keyId);
-        const matchSearch = !search || keyId.toLowerCase().includes(search) || username.includes(search) || devices.some(d => d.toLowerCase().includes(search));
-        if (!matchSearch) return false;
-
-        const banned = isKeyBanned(keyId);
-        const expired = isKeyExpired(keyId);
-        const pending = isKeyPending(keyId);
-
-        if (keyFilter === 'all') return true;
-        if (keyFilter === 'active') return !banned && !expired && !pending;
-        if (keyFilter === 'pending') return pending;
-        if (keyFilter === 'expired') return expired && !banned;
-        if (keyFilter === 'banned') return banned;
-        if (keyFilter === 'nearby') {
-            if (!k.ExpiryDate) return false;
-            const diff = (new Date(k.ExpiryDate) - new Date()) / (1000*60*60*24);
-            return diff > 0 && diff < 7 && !banned;
-        }
-        return true;
-    });
-
-    if (filtered.length === 0) {
-        container.innerHTML = '<div class="empty-state">No keys found</div>';
-        return;
-    }
-
-    container.innerHTML = filtered.map(keyId => {
-        const k = keysObj[keyId];
-        const devices = getDevices(keyId);
-        const banned = isKeyBanned(keyId);
-        const expired = isKeyExpired(keyId);
-        const pending = isKeyPending(keyId);
-
-        let statusClass = 'active';
-        let statusLabel = 'ACTIVE';
-        if (banned) { statusClass = 'banned'; statusLabel = 'BANNED'; }
-        else if (pending) { statusClass = 'pending'; statusLabel = 'PENDING'; }
-        else if (expired) { statusClass = 'expired'; statusLabel = 'EXPIRED'; }
-
-        let expiringSoon = false;
-        if (!banned && !pending && !expired && k.ExpiryDate) {
-            const diff = (new Date(k.ExpiryDate) - new Date()) / (1000*60*60*24);
-            if (diff > 0 && diff < 7) expiringSoon = true;
-        }
-
-        // Owner badge: show "YOU" if it's the current user's key, else ADMIN/OPERATOR
-        let ownerBadge;
-        if (k.Owner === currentUser.username) {
-            ownerBadge = '<span class="badge owner-operator"><i class="fas fa-user"></i> YOU</span>';
-        } else if (k.Owner === 'admin' || !k.Owner) {
-            ownerBadge = '<span class="badge owner-admin"><i class="fas fa-crown"></i> ADMIN</span>';
-        } else {
-            ownerBadge = `<span class="badge owner-operator"><i class="fas fa-user"></i> ${k.Owner}</span>`;
-        }
-
-        const paymentBadge = k.Amount ? `<span class="badge payment-tag"><i class="fas fa-rupee-sign"></i> ${k.Amount}</span>` : '';
-        const expiringBadge = expiringSoon ? '<span class="badge nearby"><i class="fas fa-hourglass-half"></i> EXPIRING</span>' : '';
-
-        // Operator can only edit/delete/ban their own keys; admin can do all
-        const canManage = currentUser.role === 'admin' || k.Owner === currentUser.username;
-
-        return `
-        <div class="list-card ${statusClass}" data-key="${keyId}">
-            <div class="card-header-main">
-                <div class="card-header-left">
-                    <div class="card-title copyable" onclick="event.stopPropagation();copyKeyToClipboard('${keyId}')">
-                        <i class="fas fa-key" style="color:var(--primary)"></i> ${keyId}
-                        <span class="copy-hint"><i class="fas fa-copy"></i></span>
-                    </div>
-                    <div class="card-subtitle">
-                        <span><i class="fas fa-user"></i> ${k.Username || 'N/A'}</span>
-                        <span><i class="fas fa-calendar-alt"></i> ${k.ExpiryDate || 'N/A'}</span>
-                        <span><i class="fas fa-mobile-alt"></i> ${devices.length}/${k.DeviceLimit || 1}</span>
-                        ${ownerBadge}
-                        ${paymentBadge}
-                        <span class="badge ${statusClass}">${statusLabel}</span>
-                        ${expiringBadge}
-                    </div>
-                </div>
-                <div class="card-header-right" onclick="toggleCard(this)"><i class="fas fa-chevron-down chevron-icon"></i></div>
-            </div>
-            <div class="card-details">
-                <div style="font-size:0.75rem;color:var(--text-dim);font-weight:700;margin-bottom:4px"><i class="fas fa-user"></i> Username: ${k.Username || 'N/A'}</div>
-                <div style="font-size:0.75rem;color:var(--text-dim);font-weight:700;margin-bottom:4px"><i class="fas fa-credit-card"></i> Payment: ${k.Payment || k.Amount || 'N/A'}</div>
-                <div style="font-size:0.75rem;color:var(--text-dim);font-weight:700;margin-bottom:4px"><i class="fas fa-calendar-check"></i> Expiry: ${k.ExpiryDate || 'N/A'}</div>
-                <div style="font-size:0.75rem;color:var(--text-dim);font-weight:700;margin-bottom:8px"><i class="fas fa-hdd"></i> Devices (${devices.length}):</div>
-                <div class="devices-wrapper">
-                    ${devices.length === 0 ? '<div style="color:var(--text-muted);font-size:0.75rem;padding:8px">No devices linked</div>' : ''}
-                    ${devices.map(d => `
-                        <div class="device-box">
-                            <div class="device-hwid">${d}</div>
-                            ${canManage ? `<div style="display:flex;gap:6px;margin-top:4px">
-                                <span class="interactive-text" style="font-size:0.7rem;color:var(--primary)" onclick="event.stopPropagation();openEditHWID('${keyId}','${d}')"><i class="fas fa-edit"></i> Edit</span>
-                                <span class="interactive-text" style="font-size:0.7rem;color:var(--danger)" onclick="event.stopPropagation();removeDevice('${keyId}','${d}')"><i class="fas fa-trash"></i> Remove</span>
-                            </div>` : ''}
-                        </div>
-                    `).join('')}
-                </div>
-                ${canManage ? `
-                <div class="card-actions">
-                    ${pending && currentUser.role === 'admin' ? `
-                        <button class="btn-xs approve" onclick="event.stopPropagation();approveKey('${keyId}')"><i class="fas fa-check"></i> Approve</button>
-                    ` : ''}
-                    <button class="btn-xs edit" onclick="event.stopPropagation();openKeyModal('${keyId}')"><i class="fas fa-edit"></i> Edit</button>
-                    <button class="btn-xs ${banned?'unban':'ban'}" onclick="event.stopPropagation();toggleBan('${keyId}')">
-                        <i class="fas ${banned?'fa-check-circle':'fa-ban'}"></i> ${banned?'Unban':'Ban'}
-                    </button>
-                    <button class="btn-xs del" onclick="event.stopPropagation();deleteKey('${keyId}')"><i class="fas fa-trash"></i> Delete</button>
-                </div>` : ''}
-            </div>
-        </div>`;
-    }).join('');
-}
-
-function toggleCard(el) {
-    const card = el.closest('.list-card');
-    if (card) card.classList.toggle('expanded');
-}
-
-function approveKey(keyId) {
-    const k = getKeyData(keyId);
-    if (!k) return;
-    k.Pending = false;
-    k.Status = 'active';
-    pushFirebase(true);
-    renderKeys();
-    showToast('Key approved', 'fa-check-circle', 'var(--success)');
-}
-
-async function deleteKey(keyId) {
-    const k = getKeyData(keyId);
-    if (!k) return;
-    // Operator can only delete own keys
-    if (currentUser.role !== 'admin' && k.Owner !== currentUser.username) {
-        return showToast('Permission denied', 'fa-ban', 'var(--danger)');
-    }
-    if (!confirm('Delete this key?')) return;
-    delete DB.DPMods_Security.Keys[keyId];
-    await pushFirebase();
-    renderKeys();
-    showToast('Key deleted', 'fa-trash', 'var(--danger)');
-}
-
-function toggleBan(keyId) {
-    const k = getKeyData(keyId);
-    if (!k) return;
-    if (currentUser.role !== 'admin' && k.Owner !== currentUser.username) {
-        return showToast('Permission denied', 'fa-ban', 'var(--danger)');
-    }
-    k.Banned = !k.Banned;
-    pushFirebase(true);
-    renderKeys();
-    showToast(k.Banned ? 'Key banned' : 'Key unbanned', k.Banned ? 'fa-ban' : 'fa-check-circle', k.Banned ? 'var(--danger)' : 'var(--success)');
-}
-
-function removeDevice(keyId, hwid) {
-    const k = getKeyData(keyId);
-    if (!k || !k.Devices) return;
-    if (currentUser.role !== 'admin' && k.Owner !== currentUser.username) {
-        return showToast('Permission denied', 'fa-ban', 'var(--danger)');
-    }
-    delete k.Devices[hwid];
-    const realDevices = Object.keys(k.Devices).filter(h => h !== 'dummy');
-    if (realDevices.length === 0) k.Devices['dummy'] = 0;
-    pushFirebase(true);
-    renderKeys();
-    showToast('Device removed', 'fa-trash', 'var(--warning)');
-}
-
-// ---------- EDIT HWID ----------
-function openEditHWID(keyId, oldHwid) {
-    const k = getKeyData(keyId);
-    if (!k) return;
-    if (currentUser.role !== 'admin' && k.Owner !== currentUser.username) {
-        return showToast('Permission denied', 'fa-ban', 'var(--danger)');
-    }
-    $('mod-edit-hwid').value = oldHwid;
-    $('mod-edit-old-hwid').value = oldHwid;
-    $('mod-edit-key-id').value = keyId;
-    $('edit-hwid-modal').classList.add('active');
-}
-
-function saveEditedHWID() {
-    const keyId = $('mod-edit-key-id').value;
-    const oldHwid = $('mod-edit-old-hwid').value;
-    const newHwid = $('mod-edit-hwid').value.trim();
-    if (!newHwid) return showToast('Enter HWID', 'fa-exclamation-triangle', 'var(--warning)');
-    const k = getKeyData(keyId);
-    if (!k || !k.Devices) return;
-    if (currentUser.role !== 'admin' && k.Owner !== currentUser.username) {
-        return showToast('Permission denied', 'fa-ban', 'var(--danger)');
-    }
-    if (k.Devices[oldHwid] !== undefined) {
-        k.Devices[newHwid] = k.Devices[oldHwid];
-        delete k.Devices[oldHwid];
-    }
-    pushFirebase(true);
-    closeModals();
-    renderKeys();
-    showToast('HWID updated', 'fa-check-circle', 'var(--success)');
-}
-
-// ---------- KEY MODAL ----------
-function openKeyModal(keyId = null) {
-    currentEditKey = keyId;
-    if (keyId) {
-        const k = getKeyData(keyId);
-        if (!k) return;
-        // Operator can only edit own keys
-        if (currentUser.role !== 'admin' && k.Owner !== currentUser.username) {
-            return showToast('Permission denied', 'fa-ban', 'var(--danger)');
-        }
-        $('modal-key-title').textContent = 'Edit Key';
-        $('mod-key-id').value = keyId;
-        $('mod-key-username').value = k.Username || '';
-        $('mod-key-limit').value = k.DeviceLimit || 1;
-        $('mod-key-amount').value = k.Amount || '';
-        $('mod-key-date').value = k.ExpiryDate || '';
-        $('mod-key-payment').value = k.Payment || '';
-        const days = k.Days || 0;
-        selectedDays = days;
-        qsa('.day-btn').forEach(b => b.classList.toggle('selected', parseInt(b.dataset.days) === days));
-        if (days) {
-            const btn = qsa(`.day-btn[data-days="${days}"]`)[0];
-            if (btn) {
-                $('mod-key-amount').value = '₹' + (days*300).toLocaleString('en-IN');
-                $('expiry-preview-text').textContent = `Expires on ${k.ExpiryDate}`;
-            }
-        }
-    } else {
-        $('modal-key-title').textContent = 'Generate Key';
-        $('mod-key-id').value = '';
-        $('mod-key-username').value = '';
-        $('mod-key-limit').value = 1;
-        $('mod-key-amount').value = '';
-        $('mod-key-date').value = '';
-        $('mod-key-payment').value = '';
-        selectedDays = null;
-        qsa('.day-btn').forEach(b => b.classList.remove('selected'));
-        $('expiry-preview-text').textContent = 'Select a package';
-        $('admin-fee-summary').style.display = 'none';
-        $('op-fee-summary').style.display = 'none';
-        $('payment-btn-admin').disabled = true;
-        $('payment-btn-op').disabled = true;
-    }
-
-    if (currentUser.role === 'admin') {
-        $('admin-key-actions').style.display = 'block';
-        $('operator-key-actions').style.display = 'none';
-    } else {
-        $('admin-key-actions').style.display = 'none';
-        $('operator-key-actions').style.display = 'block';
-    }
-
-    $('key-modal').classList.add('active');
-}
-
-async function saveKeyDirectly() {
-    const keyId = $('mod-key-id').value.trim();
-    const username = $('mod-key-username').value.trim();
-    const limit = parseInt($('mod-key-limit').value) || 1;
-    const days = selectedDays;
-    const amount = days ? days * 300 : 0;
-    const expiry = $('mod-key-date').value || new Date(Date.now() + days*86400000).toISOString().split('T')[0];
-    const payment = $('mod-key-payment').value.trim();
-
-    if (!keyId) return showToast('Generate a key first', 'fa-exclamation-triangle', 'var(--warning)');
-    if (!username) return showToast('Enter username', 'fa-exclamation-triangle', 'var(--warning)');
-    if (!days) return showToast('Select a package', 'fa-exclamation-triangle', 'var(--warning)');
-
-    if (currentEditKey) {
-        const k = getKeyData(currentEditKey);
-        if (!k) return;
-        k.Username = username;
-        k.DeviceLimit = limit;
-        k.Days = days;
-        k.Amount = amount;
-        k.ExpiryDate = expiry;
-        k.Payment = payment || k.Payment || ('₹' + amount);
-    } else {
-        if (DB.DPMods_Security.Keys[keyId]) return showToast('Key already exists', 'fa-exclamation-triangle', 'var(--danger)');
-        DB.DPMods_Security.Keys[keyId] = {
-            Username: username,
-            DeviceLimit: limit,
-            ExpiryDate: expiry,
-            Banned: false,
-            Devices: { dummy: 0 },
-            Days: days,
-            Amount: amount,
-            Payment: payment || ('₹' + amount),
-            Owner: currentUser.username,
-            Status: 'active',
-            Created: new Date().toISOString().split('T')[0]
-        };
-    }
-    await pushFirebase();
-    closeModals();
-    renderKeys();
-    showToast(currentEditKey ? 'Key updated' : 'Key generated', 'fa-check-circle', 'var(--success)');
-    currentEditKey = null;
-}
-
-// ---------- PAYMENT (Operator flow) ----------
-async function openPaymentModal() {
-    const keyId = $('mod-key-id').value.trim();
-    const username = $('mod-key-username').value.trim();
-    const limit = parseInt($('mod-key-limit').value) || 1;
-    const days = selectedDays || 7;
-    const amount = days * 300;
-    const expiry = new Date(Date.now() + days*86400000).toISOString().split('T')[0];
-
-    if (!keyId) return showToast('Generate a key first', 'fa-exclamation-triangle', 'var(--warning)');
-    if (!username) return showToast('Enter username', 'fa-exclamation-triangle', 'var(--warning)');
-    if (DB.DPMods_Security.Keys[keyId]) return showToast('Key already exists', 'fa-exclamation-triangle', 'var(--danger)');
-
-    DB.DPMods_Security.Keys[keyId] = {
-        Username: username,
-        DeviceLimit: limit,
-        ExpiryDate: expiry,
-        Banned: false,
-        Devices: { dummy: 0 },
-        Days: days,
-        Amount: amount,
-        Payment: '₹' + amount,
-        Owner: currentUser.username,
-        Status: 'pending',
-        Pending: true,
-        Created: new Date().toISOString().split('T')[0]
-    };
-    await pushFirebase();
-    renderKeys();
-    closeModals();
-    $('payment-instruction-modal').classList.add('active');
-}
-
-function closePaymentModal() {
-    $('payment-instruction-modal').classList.remove('active');
-    showToast('Payment recorded (pending)', 'fa-clock', 'var(--warning)');
-}
-
-// ---------- BANS ----------
-function renderBans() {
-    const container = $('bans-list');
-    const search = ($('search-bans')?.value || '').toLowerCase();
-    const bansStr = (DB.DPMods_Security.App_Status?.Banned_Devices || '');
-    const bansArr = bansStr.split(',').map(s => s.trim()).filter(Boolean);
-    const filtered = bansArr.filter(h => !search || h.toLowerCase().includes(search));
-
-    if (filtered.length === 0) {
-        container.innerHTML = '<div class="empty-state">No banned HWIDs</div>';
-        return;
-    }
-    container.innerHTML = filtered.map(h => `
-        <div class="list-card banned">
-            <div class="card-header-main" style="cursor:default">
-                <div class="card-header-left">
-                    <div class="card-title"><i class="fas fa-ban" style="color:var(--danger)"></i> ${h}</div>
-                    <div class="card-subtitle"><span><i class="fas fa-info-circle"></i> Global ban</span></div>
-                </div>
-                <div class="card-header-right">
-                    <button class="btn-xs del" style="width:auto;padding:8px 12px" onclick="removeBan('${h}')"><i class="fas fa-trash"></i></button>
-                </div>
-            </div>
-        </div>
-    `).join('');
-}
-
-function openBanModal() {
-    $('mod-ban-id').value = '';
-    $('ban-modal').classList.add('active');
-}
-
-async function saveBan() {
-    const hwid = $('mod-ban-id').value.trim();
-    if (!hwid) return showToast('Enter HWID', 'fa-exclamation-triangle', 'var(--warning)');
-    const bansStr = DB.DPMods_Security.App_Status?.Banned_Devices || '';
-    const bansArr = bansStr.split(',').map(s => s.trim()).filter(Boolean);
-    if (bansArr.includes(hwid)) return showToast('Already banned', 'fa-exclamation-triangle', 'var(--danger)');
-    bansArr.push(hwid);
-    if (!DB.DPMods_Security.App_Status) DB.DPMods_Security.App_Status = {};
-    DB.DPMods_Security.App_Status.Banned_Devices = bansArr.join(', ');
-    await pushFirebase();
-    closeModals();
-    renderBans();
-    showToast('Hardware banned', 'fa-ban', 'var(--danger)');
-}
-
-async function removeBan(hwid) {
-    const bansStr = DB.DPMods_Security.App_Status?.Banned_Devices || '';
-    const bansArr = bansStr.split(',').map(s => s.trim()).filter(Boolean).filter(h => h !== hwid);
-    DB.DPMods_Security.App_Status.Banned_Devices = bansArr.join(', ');
-    await pushFirebase();
-    renderBans();
-    showToast('Ban removed', 'fa-check-circle', 'var(--success)');
-}
-
-// ---------- OPERATORS ----------
-function renderOperators() {
-    const container = $('operators-list');
-    const search = ($('search-operators')?.value || '').toLowerCase();
-    const ops = DB.DPMods_Security.Operators || {};
-    const filtered = Object.keys(ops).filter(u => !search || u.toLowerCase().includes(search) || (ops[u].name||'').toLowerCase().includes(search));
-
-    if (filtered.length === 0) {
-        container.innerHTML = '<div class="empty-state">No operators</div>';
-        return;
-    }
-    container.innerHTML = filtered.map(u => {
-        const o = ops[u];
-        return `
-        <div class="list-card operator">
-            <div class="card-header-main" style="cursor:default">
-                <div class="card-header-left">
-                    <div class="card-title"><i class="fas fa-user-cog" style="color:var(--accent)"></i> ${u}</div>
-                    <div class="card-subtitle">
-                        <span><i class="fas fa-user"></i> ${o.name || 'N/A'}</span>
-                        <span><i class="fas fa-calendar"></i> ${o.created || 'N/A'}</span>
-                    </div>
-                </div>
-                <div class="card-header-right">
-                    <button class="btn-xs edit" style="width:auto;padding:8px 12px" onclick="openOperatorModal('${u}')"><i class="fas fa-edit"></i></button>
-                    <button class="btn-xs del" style="width:auto;padding:8px 12px" onclick="deleteOperator('${u}')"><i class="fas fa-trash"></i></button>
-                </div>
-            </div>
-        </div>`;
-    }).join('');
-}
-
-function openOperatorModal(username = null) {
-    currentEditOperator = username;
-    if (username) {
-        const o = DB.DPMods_Security.Operators[username];
-        if (!o) return;
-        $('modal-operator-title').textContent = 'Edit Operator';
-        $('mod-op-username').value = username;
-        $('mod-op-password').value = o.password || '';
-        $('mod-op-name').value = o.name || '';
-        $('mod-op-notes').value = o.notes || '';
-        $('modal-operator-btn-text').textContent = 'Update';
-    } else {
-        $('modal-operator-title').textContent = 'Create Operator';
-        $('mod-op-username').value = '';
-        $('mod-op-password').value = '';
-        $('mod-op-name').value = '';
-        $('mod-op-notes').value = '';
-        $('modal-operator-btn-text').textContent = 'Create';
-    }
-    $('operator-modal').classList.add('active');
-}
-
-async function saveOperator() {
-    const u = $('mod-op-username').value.trim();
-    const p = $('mod-op-password').value.trim();
-    const name = $('mod-op-name').value.trim();
-    const notes = $('mod-op-notes').value.trim();
-    if (!u || !p) return showToast('Username & password required', 'fa-exclamation-triangle', 'var(--warning)');
-    if (!DB.DPMods_Security.Operators) DB.DPMods_Security.Operators = {};
-
-    if (currentEditOperator) {
-        DB.DPMods_Security.Operators[u] = {
-            password: p, name, notes,
-            created: DB.DPMods_Security.Operators[currentEditOperator]?.created || new Date().toISOString().split('T')[0]
-        };
-        if (u !== currentEditOperator) delete DB.DPMods_Security.Operators[currentEditOperator];
-    } else {
-        if (DB.DPMods_Security.Operators[u]) return showToast('Operator exists', 'fa-exclamation-triangle', 'var(--danger)');
-        DB.DPMods_Security.Operators[u] = { password: p, name, notes, created: new Date().toISOString().split('T')[0] };
-    }
-    await pushFirebase();
-    closeModals();
-    renderOperators();
-    showToast(currentEditOperator ? 'Operator updated' : 'Operator created', 'fa-check-circle', 'var(--success)');
-    currentEditOperator = null;
-}
-
-async function deleteOperator(username) {
-    if (!confirm('Delete operator?')) return;
-    delete DB.DPMods_Security.Operators[username];
-    await pushFirebase();
-    renderOperators();
-    showToast('Operator removed', 'fa-trash', 'var(--danger)');
-}
-
-// ---------- CHANGE PASSWORD ----------
-function openChangePasswordModal() {
-    $('mod-current-pass').value = '';
-    $('mod-new-pass').value = '';
-    $('mod-confirm-pass').value = '';
-    $('change-password-modal').classList.add('active');
-}
-
-async function saveNewPassword() {
-    const cur = $('mod-current-pass').value;
-    const nw = $('mod-new-pass').value;
-    const cf = $('mod-confirm-pass').value;
-    if (!cur || !nw || !cf) return showToast('Fill all fields', 'fa-exclamation-triangle', 'var(--warning)');
-    if (nw !== cf) return showToast('Passwords do not match', 'fa-times-circle', 'var(--danger)');
-    if (cur !== currentUser.password) return showToast('Current password incorrect', 'fa-times-circle', 'var(--danger)');
-
-    currentUser.password = nw;
-    if (currentUser.role === 'operator') {
-        const op = DB.DPMods_Security.Operators[currentUser.username];
-        if (op) op.password = nw;
-        await pushFirebase();
-    } else {
-        showToast('Admin password changed (session only)', 'fa-check-circle', 'var(--success)');
-        closeModals();
-        return;
-    }
-    closeModals();
-    showToast('Password updated', 'fa-check-circle', 'var(--success)');
-}
-
-// ---------- SYSTEM CONFIG ----------
-function populateConfig() {
-    const app = DB.DPMods_Security.App_Status || {};
-    $('as-title').value = app.Dialog_Title || '';
-    $('as-subtitle').value = app.Dialog_Subtitle || '';
-    $('as-main-banner').value = app.Main_Banner || '';
-    $('as-admin-link').value = app.Admin_URL || '';
-    $('as-em-title').value = app.Emergency_Title || '';
-    $('as-em-msg').value = app.Emergency_Message || '';
-    $('as-em-banner').value = app.Emergency_Banner || '';
-    $('tog-em-mode').classList.toggle('active', app.Emergency_Mode === true);
-    $('tog-em-cancel').classList.toggle('active', app.Emergency_Show_Cancel === true);
-    $('tog-trial').classList.toggle('active', app.Trials_Enabled === true);
-}
-
-async function saveAppStatus() {
-    if (!DB.DPMods_Security.App_Status) DB.DPMods_Security.App_Status = {};
-    const app = DB.DPMods_Security.App_Status;
-    app.Dialog_Title = $('as-title').value.trim();
-    app.Dialog_Subtitle = $('as-subtitle').value.trim();
-    app.Main_Banner = $('as-main-banner').value.trim();
-    app.Admin_URL = $('as-admin-link').value.trim();
-    app.Emergency_Title = $('as-em-title').value.trim();
-    app.Emergency_Message = $('as-em-msg').value.trim();
-    app.Emergency_Banner = $('as-em-banner').value.trim();
-    app.Emergency_Mode = $('tog-em-mode').classList.contains('active');
-    app.Emergency_Show_Cancel = $('tog-em-cancel').classList.contains('active');
-    app.Trials_Enabled = $('tog-trial').classList.contains('active');
-    await pushFirebase();
-    showToast('Config saved', 'fa-save', 'var(--primary)');
-}
-
-// ---------- NAVIGATION ----------
-function nav(view, el, title, subtitle) {
-    qsa('.view').forEach(v => v.classList.remove('active'));
-    $('view-' + view).classList.add('active');
-    qsa('.nav-item').forEach(n => n.classList.remove('active'));
-    el.classList.add('active');
-    $('page-subtitle-text').textContent = subtitle;
-    if (view === 'keys') renderKeys();
-    if (view === 'bans') renderBans();
-    if (view === 'operators') renderOperators();
-}
-
-// ---------- POLICY ----------
-function openPolicy(type) {
-    closeModals();
-    qsa('.policy-page').forEach(p => p.classList.remove('active'));
-    $('policy-' + type).classList.add('active');
-}
-function closePolicy() {
-    qsa('.policy-page').forEach(p => p.classList.remove('active'));
-}
-
-// ---------- INIT ----------
-window.addEventListener('load', () => {
-    setTimeout(() => { try { $('login-username').focus(); } catch(e){} }, 300);
-});
-</script>
+<script src="https://sdk.cashfree.com/js/v3/cashfree.js"></script>
+<script src="app.js"></script>
 </body>
 </html>
