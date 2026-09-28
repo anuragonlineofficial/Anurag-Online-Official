@@ -1,4 +1,14 @@
-node_modules
+node_modules/
 .env
+.env.local
 *.log
-.DS_Store 
+serviceAccount.json
+sa-minified.txt
+*firebase-adminsdk*.json
+.vercel
+.DS_Store
+dist/
+build/
+_backup/
+backend/.env
+backend/.gitignore

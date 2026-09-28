@@ -1,23 +1,16 @@
 {
-  "name": "anurag-online-backend",
+  "name": "anurag-backend",
   "version": "1.0.0",
-  "description": "Anurag Online Official - Cashfree Payment Backend",
-  "main": "server.js",
+  "type": "module",
   "scripts": {
     "start": "node server.js"
   },
-  "keywords": [
-    "cashfree",
-    "payment",
-    "anurag-online"
-  ],
-  "author": "Anurag Singh",
-  "license": "ISC",
-  "type": "commonjs",
   "dependencies": {
-    "cashfree-pg": "^6.0.6",
+    "express": "^4.19.2",
     "cors": "^2.8.5",
-    "dotenv": "^16.3.1",
-    "express": "^4.18.2"
-  }
+    "node-fetch": "^3.3.2",
+    "firebase-admin": "^12.0.0",
+    "dotenv": "^16.4.5"
+  },
+  "engines": { "node": ">=18" }
 }

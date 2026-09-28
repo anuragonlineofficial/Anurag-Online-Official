@@ -1,112 +1,293 @@
-require('dotenv').config();
-const express = require('express');
-const cors = require('cors');
-const { Cashfree, CFEnvironment } = require('cashfree-pg');
+import express from 'express';
+import cors from 'cors';
+import fetch from 'node-fetch';
+import admin from 'firebase-admin';
+import dotenv from 'dotenv';
+import { readFileSync } from 'fs';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
+
+dotenv.config();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const app = express();
-app.use(cors());
+app.use(cors({ origin: process.env.FRONTEND_URL?.split(',') || '*' }));
 app.use(express.json());
 
-const cashfree = new Cashfree(
-  process.env.CASHFREE_ENV === 'production'
-    ? CFEnvironment.PRODUCTION
-    : CFEnvironment.SANDBOX,
-  process.env.CASHFREE_APP_ID,
-  process.env.CASHFREE_SECRET_KEY
+// Firebase Admin — service account file se load
+const serviceAccount = JSON.parse(
+  readFileSync(join(__dirname, 'serviceAccount.json'), 'utf8')
 );
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+  databaseURL: process.env.FIREBASE_DB_URL
+});
+const db = admin.database();
 
-// 🔒 SERVER-SIDE FIXED PRICES (कोई edit नहीं कर सकता)
-const PACKAGE_PRICES = {
-  7: 2100,
-  14: 4200,
-  21: 6300,
-  28: 8400,
-  35: 10500,
-  42: 12600,
-  49: 14700
-};
+// Cashfree
+const CF_BASE = process.env.CASHFREE_ENV === 'production'
+  ? 'https://api.cashfree.com/pg'
+  : 'https://sandbox.cashfree.com/pg';
+const CF_ID = process.env.CASHFREE_APP_ID;
+const CF_SECRET = process.env.CASHFREE_SECRET;
 
-app.get('/', (req, res) => {
-  res.json({
-    status: 'ok',
-    service: 'Anurag Online Official',
-    contact: '9451228744',
-    email: 'ahardoi30@gmail.com'
-  });
+// ─── AUTH MIDDLEWARE ───
+async function authMiddleware(req, res, next) {
+  try {
+    const h = req.headers.authorization || '';
+    const token = h.startsWith('Bearer ') ? h.slice(7) : null;
+    if (!token) return res.status(401).json({ error: 'No token' });
+    const decoded = await admin.auth().verifyIdToken(token);
+    req.user = decoded;
+    next();
+  } catch (e) {
+    return res.status(401).json({ error: 'Invalid token' });
+  }
+}
+
+async function isAdmin(uid) {
+  const snap = await db.ref(`DPMods_Security/Admins/${uid}`).once('value');
+  return snap.exists() && snap.val() === true;
+}
+
+// ─── HEALTH ───
+app.get('/', (_, res) => res.json({ ok: true, service: 'anurag-backend', time: Date.now() }));
+
+// ─── FIRST-TIME ADMIN SETUP ───
+app.post('/api/setup-admin', async (req, res) => {
+  try {
+    const { email, pass, setupKey } = req.body;
+    if (setupKey !== process.env.SETUP_KEY) {
+      return res.status(403).json({ error: 'Wrong setup key' });
+    }
+    if (!email || !pass) {
+      return res.status(400).json({ error: 'Email and password required' });
+    }
+
+    let user;
+    try {
+      user = await admin.auth().getUserByEmail(email);
+    } catch {
+      user = await admin.auth().createUser({ email, password: pass });
+    }
+
+    await db.ref(`DPMods_Security/Admins/${user.uid}`).set(true);
+    await db.ref(`DPMods_Security/App_Status`).update({
+      Dialog_Title: 'SYSTEM ACCESS',
+      Dialog_Subtitle: 'Secure authentication required',
+      KeyPrice: 49,
+      Maintenance: false,
+      Update_Required: false,
+      Admin_URL: '',
+      Update_Link: '',
+      Banned_Devices: ''
+    });
+    res.json({ ok: true, uid: user.uid, email });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: e.message });
+  }
 });
 
-app.post('/api/create-order', async (req, res) => {
+// ─── CREATE ORDER ───
+app.post('/api/payment/create-order', authMiddleware, async (req, res) => {
   try {
-    const { keyId, days, customer_name, customer_phone, customer_email } = req.body;
-
-    // 🔒 Amount server पर तय होगा — client से नहीं लेगा
-    const amount = PACKAGE_PRICES[days];
-
-    if (!amount) {
-      return res.status(400).json({
-        success: false,
-        error: 'Invalid package selected'
-      });
+    const { keyId, username, limit, expiry } = req.body;
+    if (!keyId || !username || !expiry) {
+      return res.status(400).json({ error: 'Missing fields' });
     }
 
-    if (!keyId) {
-      return res.status(400).json({
-        success: false,
-        error: 'Key ID is required'
-      });
-    }
+    const snap = await db.ref('DPMods_Security/App_Status/KeyPrice').once('value');
+    const price = snap.val() || 49;
 
-    const safeKeyId = keyId.replace(/[^a-zA-Z0-9_-]/g, '');
-    const orderId = `AO_${safeKeyId}_${Date.now()}`.substring(0, 45);
-
-    const request = {
-      order_amount: amount,
-      order_currency: "INR",
+    const orderId = `ORDER_${Date.now()}_${req.user.uid}`;
+    const body = {
+      order_amount: price,
+      order_currency: 'INR',
       order_id: orderId,
       customer_details: {
-        customer_id: `cust_${Date.now()}`,
-        customer_name: customer_name || 'Anurag Online Customer',
-        customer_phone: customer_phone || '9999999999',
-        customer_email: customer_email || 'customer@anuragonlineofficial.com'
-      }
+        customer_id: req.user.uid,
+        customer_phone: '9999999999'
+      },
+      order_meta: { return_url: `${process.env.FRONTEND_URL}/?order_id={order_id}` },
+      order_note: `Key ${keyId} for ${username}`
     };
 
-    const response = await cashfree.PGCreateOrder(request);
-
-    res.json({
-      success: true,
-      order_id: orderId,
-      payment_session_id: response.data.payment_session_id,
-      keyId: keyId,
-      days: days,
-      amount: amount
+    const r = await fetch(`${CF_BASE}/orders`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-client-id': CF_ID,
+        'x-client-secret': CF_SECRET,
+        'x-api-version': '2023-08-01'
+      },
+      body: JSON.stringify(body)
     });
-  } catch (error) {
-    console.error('Order creation error:', error.message);
-    if (error.response) {
-      console.error('Cashfree response:', JSON.stringify(error.response.data));
-    }
-    res.status(500).json({ success: false, error: error.message });
+    const data = await r.json();
+    if (!r.ok) return res.status(400).json({ error: data.message || 'Order failed' });
+
+    await db.ref(`DPMods_Security/PendingOrders/${orderId}`).set({
+      keyId, username, limit, expiry,
+      uid: req.user.uid, amount: price,
+      status: 'PENDING', createdAt: Date.now()
+    });
+
+    res.json({ orderId, paymentSessionId: data.payment_session_id, amount: price });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: e.message });
   }
 });
 
-app.post('/api/cashfree-webhook', async (req, res) => {
+// ─── VERIFY PAYMENT + ISSUE KEY ───
+app.post('/api/payment/verify', authMiddleware, async (req, res) => {
   try {
-    const signature = req.headers['x-webhook-signature'];
-    const timestamp = req.headers['x-webhook-timestamp'];
-    const rawBody = JSON.stringify(req.body);
+    const { orderId } = req.body;
+    if (!orderId) return res.status(400).json({ error: 'Missing orderId' });
 
-    cashfree.PGVerifyWebhookSignature(signature, rawBody, timestamp);
+    const r = await fetch(`${CF_BASE}/orders/${orderId}`, {
+      headers: {
+        'x-client-id': CF_ID,
+        'x-client-secret': CF_SECRET,
+        'x-api-version': '2023-08-01'
+      }
+    });
+    const data = await r.json();
+    if (data.order_status !== 'PAID') {
+      return res.status(400).json({ error: `Status: ${data.order_status}` });
+    }
 
-    console.log('Webhook received:', req.body.type);
-    res.status(200).send('OK');
-  } catch (error) {
-    console.error('Webhook failed:', error.message);
-    res.status(401).send('Invalid signature');
+    const pendingRef = db.ref(`DPMods_Security/PendingOrders/${orderId}`);
+    const pending = (await pendingRef.once('value')).val();
+    if (!pending) return res.status(404).json({ error: 'Order not found' });
+    if (pending.uid !== req.user.uid) return res.status(403).json({ error: 'Not your order' });
+    if (pending.status === 'COMPLETED') {
+      return res.json({ keyId: pending.keyId, alreadyIssued: true });
+    }
+
+    const keysSnap = await db.ref('DPMods_Security/Keys').once('value');
+    let finalKey = pending.keyId;
+    if (keysSnap.exists() && keysSnap.val()[finalKey]) {
+      const next = ((await db.ref('DPMods_Security/NextKeyNumber').once('value')).val()) || 1;
+      finalKey = `AV-IND-${next}`;
+    }
+
+    await db.ref(`DPMods_Security/Keys/${finalKey}`).set({
+      Devices: { dummy: 0 },
+      Banned: false,
+      Username: pending.username,
+      DeviceLimit: pending.limit || 1,
+      ExpiryDate: pending.expiry,
+      CreatedBy: pending.uid,
+      CreatedAt: new Date().toISOString(),
+      PaymentTxnId: data.cf_order_id || orderId,
+      PaymentStatus: 'PAID',
+      PaymentAmount: pending.amount
+    });
+
+    const m = finalKey.match(/^AV-IND-(\d+)$/);
+    if (m) {
+      const n = parseInt(m[1]);
+      const cur = ((await db.ref('DPMods_Security/NextKeyNumber').once('value')).val()) || 1;
+      if (n >= cur) await db.ref('DPMods_Security/NextKeyNumber').set(n + 1);
+    }
+
+    await pendingRef.update({ status: 'COMPLETED', completedAt: Date.now() });
+    res.json({ keyId: finalKey, txnId: data.cf_order_id || orderId });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: e.message });
   }
 });
 
-const PORT = process.env.PORT || 10000;
+// ─── ADMIN: CREATE OPERATOR ───
+app.post('/api/admin/create-operator', authMiddleware, async (req, res) => {
+  try {
+    if (!(await isAdmin(req.user.uid))) {
+      return res.status(403).json({ error: 'Admin only' });
+    }
+    const { opId, name, pass, contact } = req.body;
+    if (!opId || !pass) return res.status(400).json({ error: 'opId + pass required' });
+
+    const email = `${opId}@anurag.local`;
+    let userRecord;
+    try {
+      userRecord = await admin.auth().getUserByEmail(email);
+    } catch {
+      userRecord = await admin.auth().createUser({
+        email,
+        password: pass,
+        displayName: name
+      });
+    }
+
+    await db.ref(`DPMods_Security/Operators/${opId}`).set({
+      Name: name || opId,
+      Contact: contact || '',
+      Banned: false,
+      Uid: userRecord.uid,
+      CreatedBy: req.user.uid,
+      CreatedAt: new Date().toISOString()
+    });
+
+    res.json({ ok: true, uid: userRecord.uid });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// ─── ADMIN: DELETE OPERATOR ───
+app.post('/api/admin/delete-operator', authMiddleware, async (req, res) => {
+  try {
+    if (!(await isAdmin(req.user.uid))) {
+      return res.status(403).json({ error: 'Admin only' });
+    }
+    const { opId } = req.body;
+    const snap = await db.ref(`DPMods_Security/Operators/${opId}`).once('value');
+    const op = snap.val();
+    if (op?.Uid) {
+      try { await admin.auth().deleteUser(op.Uid); } catch (e) { console.error(e); }
+    }
+    await db.ref(`DPMods_Security/Operators/${opId}`).remove();
+    res.json({ ok: true });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// ─── ADMIN: BAN / UNBAN OPERATOR ───
+app.post('/api/admin/toggle-operator-ban', authMiddleware, async (req, res) => {
+  try {
+    if (!(await isAdmin(req.user.uid))) {
+      return res.status(403).json({ error: 'Admin only' });
+    }
+    const { opId } = req.body;
+    const ref = db.ref(`DPMods_Security/Operators/${opId}`);
+    const cur = (await ref.once('value')).val();
+    if (!cur) return res.status(404).json({ error: 'Operator not found' });
+
+    const banned = !cur.Banned;
+    await ref.update({ Banned: banned });
+    if (cur.Uid) {
+      try { await admin.auth().updateUser(cur.Uid, { disabled: banned }); }
+      catch (e) { console.error(e); }
+    }
+    res.json({ ok: true, banned });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// ─── START SERVER ───
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`Anurag Online Official server running on port ${PORT}`);
+  console.log(`✅ Backend running on :${PORT}`);
+  console.log(`📛 Firebase project: ${serviceAccount.project_id}`);
+  console.log(`🌐 Frontend URL: ${process.env.FRONTEND_URL || 'not set'}`);
+  console.log(`💳 Cashfree env: ${process.env.CASHFREE_ENV || 'sandbox'}`);
 });
