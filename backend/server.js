@@ -3,7 +3,7 @@ import cors from 'cors';
 import fetch from 'node-fetch';
 import admin from 'firebase-admin';
 import dotenv from 'dotenv';
-import { readFileSync } from 'fs';
+import { readFileSync, existsSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 
@@ -12,21 +12,35 @@ dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
+// ─── FIREBASE CREDENTIALS LOAD ───
+// Render: FIREBASE_SERVICE_ACCOUNT env var se
+// Local: serviceAccount.json file se
+let serviceAccount;
+if (process.env.FIREBASE_SERVICE_ACCOUNT) {
+  serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+  console.log('🔥 Firebase loaded from ENV VAR');
+} else {
+  const filePath = join(__dirname, 'serviceAccount.json');
+  if (!existsSync(filePath)) {
+    console.error('❌ Neither FIREBASE_SERVICE_ACCOUNT env var nor serviceAccount.json found');
+    process.exit(1);
+  }
+  serviceAccount = JSON.parse(readFileSync(filePath, 'utf8'));
+  console.log('🔥 Firebase loaded from FILE');
+}
+
 const app = express();
 app.use(cors({ origin: process.env.FRONTEND_URL?.split(',') || '*' }));
 app.use(express.json());
 
-// Firebase Admin — service account file se load
-const serviceAccount = JSON.parse(
-  readFileSync(join(__dirname, 'serviceAccount.json'), 'utf8')
-);
+// ─── INIT FIREBASE ───
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
   databaseURL: process.env.FIREBASE_DB_URL
 });
 const db = admin.database();
 
-// Cashfree
+// ─── CASHFREE ───
 const CF_BASE = process.env.CASHFREE_ENV === 'production'
   ? 'https://api.cashfree.com/pg'
   : 'https://sandbox.cashfree.com/pg';
@@ -52,10 +66,16 @@ async function isAdmin(uid) {
   return snap.exists() && snap.val() === true;
 }
 
-// ─── HEALTH ───
-app.get('/', (_, res) => res.json({ ok: true, service: 'anurag-backend', time: Date.now() }));
+// ─── HEALTH CHECK ───
+app.get('/', (_, res) => res.json({
+  ok: true,
+  service: 'anurag-backend',
+  time: Date.now(),
+  cashfreeEnv: process.env.CASHFREE_ENV,
+  project: serviceAccount.project_id
+}));
 
-// ─── FIRST-TIME ADMIN SETUP ───
+// ─── FIRST TIME ADMIN SETUP ───
 app.post('/api/setup-admin', async (req, res) => {
   try {
     const { email, pass, setupKey } = req.body;
@@ -91,7 +111,7 @@ app.post('/api/setup-admin', async (req, res) => {
   }
 });
 
-// ─── CREATE ORDER ───
+// ─── CREATE PAYMENT ORDER ───
 app.post('/api/payment/create-order', authMiddleware, async (req, res) => {
   try {
     const { keyId, username, limit, expiry } = req.body;
@@ -111,7 +131,9 @@ app.post('/api/payment/create-order', authMiddleware, async (req, res) => {
         customer_id: req.user.uid,
         customer_phone: '9999999999'
       },
-      order_meta: { return_url: `${process.env.FRONTEND_URL}/?order_id={order_id}` },
+      order_meta: {
+        return_url: `${process.env.FRONTEND_URL}/?order_id={order_id}`
+      },
       order_note: `Key ${keyId} for ${username}`
     };
 
@@ -134,7 +156,11 @@ app.post('/api/payment/create-order', authMiddleware, async (req, res) => {
       status: 'PENDING', createdAt: Date.now()
     });
 
-    res.json({ orderId, paymentSessionId: data.payment_session_id, amount: price });
+    res.json({
+      orderId,
+      paymentSessionId: data.payment_session_id,
+      amount: price
+    });
   } catch (e) {
     console.error(e);
     res.status(500).json({ error: e.message });
@@ -286,8 +312,10 @@ app.post('/api/admin/toggle-operator-ban', authMiddleware, async (req, res) => {
 // ─── START SERVER ───
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
+  console.log('═══════════════════════════════════════════');
   console.log(`✅ Backend running on :${PORT}`);
   console.log(`📛 Firebase project: ${serviceAccount.project_id}`);
   console.log(`🌐 Frontend URL: ${process.env.FRONTEND_URL || 'not set'}`);
   console.log(`💳 Cashfree env: ${process.env.CASHFREE_ENV || 'sandbox'}`);
+  console.log('═══════════════════════════════════════════');
 });
