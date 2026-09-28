@@ -3,8 +3,8 @@
 // ============================================
 const DB_URL="https://anuragonline-43a15-default-rtdb.asia-southeast1.firebasedatabase.app";
 const DB_SECRET="vaTvZgPALWoBh1K4zS2Ocxqlqv3ExhsL7tja2QCe";
-const DEFAULT_ADMIN_USERNAME="admin";
-const DEFAULT_ADMIN_PASSWORD="admin123";
+const DEFAULT_ADMIN_USERNAME="ahardoi30@gmail.com";
+const DEFAULT_ADMIN_PASSWORD="Anu@8744";
 
 // 🔥 BACKEND URL (Render)
 const BACKEND_URL = "https://anurag-online-backend.onrender.com";
@@ -185,9 +185,9 @@ async function sendTelegramNotification(keyId,days,limit,amount,operator){
     if(!TELEGRAM_BOT_TOKEN||TELEGRAM_BOT_TOKEN==="8875813789:AAEY77sZPekCfO5w21Gd3bvg3WFz6XEMt9A")return;
     try{
         const message=`🔔 *NEW PAYMENT RECEIVED*\n\n🔑 *Key:* \`${keyId}\`\n📅 *Days:* ${days}\n📱 *Devices:* ${limit}\n💰 *Amount:* ₹${amount}\n👤 *Operator:* ${operator}\n💳 *Gateway:* Cashfree\n⚠️ *NON-REFUNDABLE*\n\n👉 Admin Panel me approve karein!`;
-        await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`,{
+        await fetch(`https://api.telegram.org/bot$8875813789:AAEY77sZPekCfO5w21Gd3bvg3WFz6XEMt9A/sendMessage`,{
             method:'POST',headers:{'Content-Type':'application/json'},
-            body:JSON.stringify({chat_id:TELEGRAM_CHAT_ID,text:message,parse_mode:'Markdown'})
+            body:JSON.stringify({chat_id:8915954728,text:message,parse_mode:'Markdown'})
         });
     }catch(e){console.error(e);}
 }
@@ -470,7 +470,7 @@ function openEditKeyModal(keyId){
 }
 
 function randomKey(){
-    document.getElementById('mod-key-id').value='AV-IND-1-'+Math.floor(10000+Math.random()*90000);
+    document.getElementById('mod-key-id').value='AO-VIP-'+Math.floor(10000+Math.random()*90000);
 }
 
 // ============================================
