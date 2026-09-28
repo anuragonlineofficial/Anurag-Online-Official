@@ -10,8 +10,8 @@ const DEFAULT_ADMIN_PASSWORD="admin123";
 const BACKEND_URL = "https://anurag-online-backend.onrender.com";
 
 // 📱 TELEGRAM
-const TELEGRAM_BOT_TOKEN="YOUR_BOT_TOKEN_HERE";
-const TELEGRAM_CHAT_ID="YOUR_CHAT_ID_HERE";
+const TELEGRAM_BOT_TOKEN="8875813789:AAEY77sZPekCfO5w21Gd3bvg3WFz6XEMt9A";
+const TELEGRAM_CHAT_ID="8915954728";
 
 // 🔒 FIXED PRICES (display only — actual charge server par)
 const PACKAGE_PRICES={7:2100,14:4200,21:6300,28:8400,35:10500,42:12600,49:14700};
@@ -182,7 +182,7 @@ async function syncNode(path,obj){
 // TELEGRAM
 // ============================================
 async function sendTelegramNotification(keyId,days,limit,amount,operator){
-    if(!TELEGRAM_BOT_TOKEN||TELEGRAM_BOT_TOKEN==="YOUR_BOT_TOKEN_HERE")return;
+    if(!TELEGRAM_BOT_TOKEN||TELEGRAM_BOT_TOKEN==="8875813789:AAEY77sZPekCfO5w21Gd3bvg3WFz6XEMt9A")return;
     try{
         const message=`🔔 *NEW PAYMENT RECEIVED*\n\n🔑 *Key:* \`${keyId}\`\n📅 *Days:* ${days}\n📱 *Devices:* ${limit}\n💰 *Amount:* ₹${amount}\n👤 *Operator:* ${operator}\n💳 *Gateway:* Cashfree\n⚠️ *NON-REFUNDABLE*\n\n👉 Admin Panel me approve karein!`;
         await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`,{
@@ -470,7 +470,7 @@ function openEditKeyModal(keyId){
 }
 
 function randomKey(){
-    document.getElementById('mod-key-id').value='AO-VIP-'+Math.floor(10000+Math.random()*90000);
+    document.getElementById('mod-key-id').value='AV-IND-1-'+Math.floor(10000+Math.random()*90000);
 }
 
 // ============================================
